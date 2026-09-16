@@ -1,47 +1,60 @@
-# Alumni Portal
+# Alumni Portal - Backend API
 
-An alumni networking and community web platform designed to connect graduates, facilitate professional networking, and foster lifelong relationships between alumni and their institution.
+A robust backend service and RESTful API for the **Alumni Portal** platform. This system facilitates seamless communication and networking between alumni, fellow graduates, and faculty members (professors), fostering a collaborative academic and professional ecosystem.
+
+> **Note:** This repository is dedicated exclusively to the **backend** architecture and API services of the project.
 
 ---
 
 ## 🎯 Project Purpose
 
-The primary goal of the **Alumni Portal** is to provide an interactive, centralized platform where alumni can:
-- Stay connected with former classmates and the alumni community.
-- Create and manage their professional profiles and career journeys.
-- Discover networking opportunities, job openings, and mentorship programs.
-- Keep up-to-date with institutional announcements, alumni reunions, and community events.
+The primary objective of the **Alumni Portal** is to bridge the gap between graduates and their academic roots by providing a centralized platform where:
+- **Alumni-to-Alumni Networking:** Graduates can reconnect with former classmates, share career achievements, and collaborate on professional endeavors.
+- **Alumni-to-Faculty Engagement:** Alumni can stay in active communication with professors and faculty members for ongoing academic collaboration, mentorship, and guidance.
+- **Career & Mentorship Opportunities:** Graduates and faculty can announce job openings, internship opportunities, and research collaborations.
+- **Announcements & Reunions:** Stay up-to-date with department news, academic seminars, and alumni reunion events.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Backend & Server:** [Node.js](https://nodejs.org/) (JavaScript)
+- **Runtime & Language:** [Node.js](https://nodejs.org/) (JavaScript)
 - **Database:** [MySQL](https://www.mysql.com/)
-- **Frontend:** JavaScript, HTML5, CSS3
+- **Containerization:** [Docker](https://www.docker.com/) & Docker Compose
+- **Architecture:** RESTful API
 
 ---
 
-## ✨ Key Features (Planned)
+## ✨ Core Responsibilities & Features (Backend)
 
-- **Authentication & Authorization:** Secure registration and login system for alumni and administrators.
-- **Alumni Directory:** Searchable directory of alumni filtered by graduation year, department, and current industry.
-- **Profile Management:** Personalized alumni profiles highlighting education, career history, skills, and contact information.
-- **Events & Announcements:** Event publishing, RSVP tracking, and community news board.
-- **Networking & Messaging:** Direct communication channels and community boards for career advice and collaboration.
+- **Authentication & RBAC:** Secure user authentication and Role-Based Access Control distinguishing between Alumni, Faculty/Professors, and Administrators.
+- **Alumni & Faculty Directory:** Endpoints for querying and filtering profiles by graduation year, department, academic title, and industry.
+- **Communication & Mentorship:** Direct communication channels and mentorship inquiry systems connecting graduates and academic staff.
+- **Event & Announcement Management:** APIs to manage university events, alumni reunions, and departmental announcements.
+- **Profile & Career Tracking:** Profile endpoints supporting education history, current career milestones, and contact preferences.
 
 ---
 
-## 🚀 Getting Started
+## 🐳 Getting Started
 
 ### Prerequisites
-Ensure you have the following installed on your local environment:
-- [Node.js](https://nodejs.org/) (v16 or later recommended)
-- [MySQL](https://www.mysql.com/) Server
-- [npm](https://www.npmjs.com/) (bundled with Node.js)
+Ensure you have the following installed on your local machine:
+- [Docker](https://docs.docker.com/get-docker/) & Docker Compose
+- [Node.js](https://nodejs.org/) (v18 or later recommended for local development)
+- [npm](https://www.npmjs.com/)
+
+### Running with Docker (Recommended)
+```bash
+# 1. Clone the repository
+git clone https://github.com/xanpvs/alumni.git
+cd alumni
+
+# 2. Start services using Docker Compose
+docker-compose up --build
+```
 
 ---
 
 ## 📄 License
 
-This project is developed for educational and community purposes.
+This project is developed for educational and academic collaboration purposes.
