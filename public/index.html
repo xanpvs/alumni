@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Portal | Mezun & Fakülte Ağı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --slate-600: #475569;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--secondary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navigation */
+    .navbar {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.85rem 1.5rem;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--secondary);
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .nav-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--success-light);
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 1.25rem;
+      border: 1px solid #dbeafe;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+      color: #0f172a;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--slate-600);
+      max-width: 780px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.85rem 1.75rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--slate-100);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title p {
+      color: var(--slate-600);
+      font-size: 1rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+      background: var(--primary-light);
+    }
+
+    .feature-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--secondary);
+    }
+
+    .feature-card p {
+      color: var(--slate-600);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    /* Interactive API Showcase */
+    .api-showcase {
+      background: #0f172a;
+      color: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 4rem;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+    }
+
+    .api-showcase h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .api-showcase p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .api-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .api-link-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 1.25rem;
+      border-radius: 12px;
+      text-decoration: none;
+      color: white;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .api-link-card:hover {
+      background: #273548;
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+
+    .api-method {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: #10b981;
+      color: #064e3b;
+      width: fit-content;
+    }
+
+    .api-path {
+      font-family: monospace;
+      font-size: 0.95rem;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    .api-desc {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* Live Tester Box */
+    .tester-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .tester-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #cbd5e1;
+    }
+
+    .tester-form {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .tester-input {
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: white;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .tester-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .tester-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .tester-btn:hover {
+      background: #2563eb;
+    }
+
+    .tester-output {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 0.9rem 1.2rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #34d399;
+      border: 1px solid #334155;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Tech Stack Strip */
+    .tech-strip {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .tech-item h4 {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+
+    .tech-item p {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      background: white;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--slate-600);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🎓</div>
+        <span>Alumni Portal</span>
+      </a>
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <a href="/about" style="text-decoration:none; color:var(--primary); font-weight:600; font-size:0.9rem;">Hakkımızda</a>
+        <div class="nav-badge">
+          <span class="pulse-dot"></span>
+          <span>Canlı • Node.js API Aktif</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-tag">🚀 Geçici Ana Sayfa • Temporary Landing Page</div>
+    <h1>Mezunları ve Akademiyi Buluşturan<br><span>Yeni Nesil İletişim Ağı</span></h1>
+    <p>
+      Alumni Portal, mezunlar arasındaki profesyonel ve sosyal bağı canlı tutarken;
+      akademisyenler, mezunlar ve öğrenciler arasında sürekli mentorluk, kariyer ve iş birliği ekosistemi sağlar.
+    </p>
+    <div class="hero-cta">
+      <a href="#endpoints" class="btn btn-primary">⚡ API Uç Noktalarını Test Et</a>
+      <a href="/about" class="btn btn-secondary">📖 Platform Hakkında (/about)</a>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="container">
+
+    <!-- Features Section (From README) -->
+    <section id="about" class="section-title">
+      <h2>Platformun Temel Amacı ve Özellikleri</h2>
+      <p>README teknik dökümantasyonunda belirtilen çekirdek işlevler</p>
+    </section>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>Mezunlar Arası İletişim (Networking)</h3>
+        <p>Mezunlar eski sınıf arkadaşlarıyla yeniden bağlantı kurabilir, kariyer başarılarını paylaşabilir ve ortak profesyonel projelere imza atabilir.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👨‍🏫</div>
+        <h3>Fakülte & Akademisyen Mentorluğu</h3>
+        <p>Mezunlar ve profesörler arasında doğrudan iletişim kanalları sunar; akademik iş birlikleri, tez danışmanlığı ve mentorluk desteği sağlar.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">💼</div>
+        <h3>Kariyer & Staj Fırsatları</h3>
+        <p>Fakülte üyeleri ve mezunlar iş ilanları, staj olanakları ve araştırma projeleri duyurabilir; genç mezunlara doğrudan kariyer yolu açar.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📢</div>
+        <h3>Duyurular & Mezunlar Buluşması</h3>
+        <p>Bölüm haberleri, akademik seminerler, kariyer günleri ve geleneksel mezunlar buluşması etkinliklerini tek merkezden yönetir.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Rol Tabanlı Yetkilendirme (RBAC)</h3>
+        <p>Mezun, Fakülte/Akademisyen ve Yönetici (Admin) rollerine özel güvenli kimlik doğrulama ve yetkilendirilmiş API erişimi.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Profil & Kariyer Geçmişi</h3>
+        <p>Mezuniyet yılı, fakülte, akademik unvan ve sektörel kriterlere göre aranabilir, filtrelenebilir zengin profil dizini.</p>
+      </div>
+    </div>
+
+    <!-- Interactive API Section -->
+    <section id="endpoints" class="api-showcase">
+      <h3><span>⚡</span> Canlı Test Edilebilir GET Rotaları</h3>
+      <p>Sunucuda şu anda aktif olan tüm GET metotlu uç noktaları doğrudan tarayıcınızda veya aşağıdaki panelde deneyebilirsiniz:</p>
+
+      <div class="api-links-grid">
+        <a href="/hello" target="_blank" class="api-link-card">
+          <span class="api-method">GET</span>
+          <span class="api-path">/hello</span>
+          <span class="api-desc">Çıktı: Hello, World!</span>
+        </a>
+
+        <a href="/hello/berat" target="_blank" class="api-link-card">
+          <span class="api-method">GET</span>
+          <span class="api-path">/hello/berat</span>
+          <span class="api-desc">Çıktı: Hello, Berat!</span>
+        </a>
+
+        <a href="/sum/5/4" target="_blank" class="api-link-card">
+          <span class="api-method">GET</span>
+          <span class="api-path">/sum/5/4</span>
+          <span class="api-desc">Çıktı: 9 (5 + 4)</span>
+        </a>
+
+        <a href="/about" target="_blank" class="api-link-card">
+          <span class="api-method">GET</span>
+          <span class="api-path">/about</span>
+          <span class="api-desc">Hakkımızda Sayfası</span>
+        </a>
+        <a href="/health" target="_blank" class="api-link-card">
+          <span class="api-method">GET</span>
+          <span class="api-path">/health</span>
+          <span class="api-desc">Çıktı: {"status": "ok"}</span>
+        </a>
+      </div>
+
+      <!-- Quick Interactive In-page Tester -->
+      <div class="tester-box">
+        <div class="tester-title">🔍 Sayfa İçi Canlı İstek Deneyicisi</div>
+        
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;">İsim Gönder (/hello/:name)</label>
+          <div class="tester-form">
+            <input type="text" id="nameInput" class="tester-input" placeholder="Örn: berat veya emre" value="berat">
+            <button class="tester-btn" onclick="testHello()">İsteği Gönder</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;">İki Sayıyı Topla (/sum/:a/:b)</label>
+          <div class="tester-form">
+            <input type="number" id="numA" class="tester-input" placeholder="Sayı 1" value="5">
+            <input type="number" id="numB" class="tester-input" placeholder="Sayı 2" value="4">
+            <button class="tester-btn" onclick="testSum()">Hesapla</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.35rem;">Sunucudan Dönen Anlık Cevap:</label>
+          <div id="outputBox" class="tester-output">Hazır. Bir test isteği gönderin...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack Strip -->
+    <section class="tech-strip">
+      <div class="tech-item">
+        <h4>Runtime</h4>
+        <p>Node.js (JavaScript)</p>
+      </div>
+      <div class="tech-item">
+        <h4>Web Framework</h4>
+        <p>Express.js REST API</p>
+      </div>
+      <div class="tech-item">
+        <h4>Database</h4>
+        <p>MySQL 8.0</p>
+      </div>
+      <div class="tech-item">
+        <h4>Containerization</h4>
+        <p>Docker & Compose</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>🎓 Alumni Portal - Backend API & Services • Eğitim ve akademik iş birliği amacıyla geliştirilmiştir.</p>
+  </footer>
+
+  <script>
+    async function testHello() {
+      const name = document.getElementById('nameInput').value.trim() || 'misafir';
+      const output = document.getElementById('outputBox');
+      output.innerText = 'İstek gönderiliyor...';
+      try {
+        const res = await fetch('/hello/' + encodeURIComponent(name));
+        const text = await res.text();
+        output.innerText = 'HTTP ' + res.status + ' -> ' + text;
+      } catch (err) {
+        output.innerText = 'Hata: ' + err.message;
+      }
+    }
+
+    async function testSum() {
+      const a = document.getElementById('numA').value || '0';
+      const b = document.getElementById('numB').value || '0';
+      const output = document.getElementById('outputBox');
+      output.innerText = 'Toplama isteği gönderiliyor...';
+      try {
+        const res = await fetch('/sum/' + a + '/' + b);
+        const text = await res.text();
+        output.innerText = 'HTTP ' + res.status + ' -> ' + text;
+      } catch (err) {
+        output.innerText = 'Hata: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>

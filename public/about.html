@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hakkımızda | Alumni Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --slate-600: #475569;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--secondary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.85rem 1.5rem;
+    }
+
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--secondary);
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      background: var(--primary-light);
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      background: #dbeafe;
+    }
+
+    /* Header */
+    .about-header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 2.5rem;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      border: 1px solid #dbeafe;
+    }
+
+    .about-header h1 {
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 800;
+      color: var(--secondary);
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .about-header h1 span {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .about-header p {
+      font-size: 1.15rem;
+      color: var(--slate-600);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Content Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 4rem;
+    }
+
+    /* Mission / Vision Cards */
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .mission-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.25rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .mission-card-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .mission-card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--secondary);
+    }
+
+    .mission-card p {
+      color: var(--slate-600);
+      font-size: 0.98rem;
+      line-height: 1.65;
+    }
+
+    /* Target Groups */
+    .section-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    .section-title p {
+      color: var(--slate-600);
+      font-size: 0.95rem;
+    }
+
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .group-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      border-top: 4px solid var(--primary);
+    }
+
+    .group-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .group-card p {
+      color: var(--slate-600);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Architecture Note */
+    .note-box {
+      background: #0f172a;
+      color: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .note-box h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .note-box p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+
+    .note-tags {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    /* Back Button Container */
+    .action-row {
+      text-align: center;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      background: white;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--slate-600);
+      font-size: 0.85rem;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🎓</div>
+        <span>Alumni Portal</span>
+      </a>
+      <a href="/" class="nav-link">← Ana Sayfaya Dön</a>
+    </div>
+  </header>
+
+  <!-- Header -->
+  <section class="about-header">
+    <div class="badge">📖 Proje Hakkında • Temporary About Page</div>
+    <h1>Akademik Köklerle <span>Kalıcı Bağlar</span></h1>
+    <p>
+      Alumni Portal, mezunlar ve üniversite öğretim üyeleri arasında köprü kurarak iş birliğini, mentorluğu ve karşılıklı gelişimi sürekli kılan bir ekosistemdir.
+    </p>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container">
+
+    <!-- Mission & Vision -->
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-card-icon">🎯</div>
+        <h2>Misyonumuz</h2>
+        <p>
+          Mezunların mezuniyet sonrasında da üniversiteleriyle bağlarını güçlü tutmak; profesörler, araştırmacılar ve eski sınıf arkadaşları arasında sürekli iletişim, bilgi paylaşımı ve profesyonel dayanışma kanalları oluşturmaktır.
+        </p>
+      </div>
+
+      <div class="mission-card">
+        <div class="mission-card-icon">🔭</div>
+        <h2>Vizyonumuz</h2>
+        <p>
+          Akademik mirasın sektördeki tecrübeyle harmanlandığı, mezunların yeni nesil öğrencilere rehberlik ettiği ve ortak bilimsel/sektörel projelerin filizlendiği küresel ölçekte aktif bir mezun topluluğu yaratmaktır.
+        </p>
+      </div>
+    </div>
+
+    <!-- Target Audience -->
+    <section class="section-title">
+      <h2>Kime Hitap Ediyor?</h2>
+      <p>Sistem üç temel paydaş grubunu tek bir ortak platformda buluşturur</p>
+    </section>
+
+    <div class="groups-grid">
+      <div class="group-card">
+        <h3>🎓 Mezunlar (Alumni)</h3>
+        <p>
+          Eski sınıf arkadaşlarıyla bağları tazeleme, iş ve staj fırsatlarını paylaşma, sektör deneyimlerini genç mezunlara aktarma imkanı.
+        </p>
+      </div>
+
+      <div class="group-card">
+        <h3>👨‍🏫 Fakülte Üyeleri (Faculty)</h3>
+        <p>
+          Yetiştirdikleri mezunlarla iletişimi sürdürme, ortak akademik araştırma projeleri yürütme ve öğrencileri için mentorluk kanalları açma imkanı.
+        </p>
+      </div>
+
+      <div class="group-card">
+        <h3>🏛️ Üniversite & Yönetim</h3>
+        <p>
+          Etkinlikler, akademik konferanslar ve mezun buluşmalarını organize etme; mezun başarılarını ve sektörel dağılımını izleme.
+        </p>
+      </div>
+    </div>
+
+    <!-- Backend Architecture Note -->
+    <div class="note-box">
+      <h3><span>⚙️</span> Teknik Mimari ve Backend Kapsamı</h3>
+      <p>
+        Bu depo, Alumni Portal platformunun RESTful API mimarisini ve servis katmanını barındırır.
+        Rol Tabanlı Yetkilendirme (RBAC), güvenli JWT doğrulama, optimize edilmiş MySQL veritabanı şemaları ve Docker tabanlı ölçeklenebilir altyapı üzerine inşa edilmektedir.
+      </p>
+      <div class="note-tags">
+        <span class="tag">Node.js (JavaScript)</span>
+        <span class="tag">Express REST API</span>
+        <span class="tag">MySQL 8.0</span>
+        <span class="tag">Docker Compose</span>
+        <span class="tag">Role-Based Access Control</span>
+      </div>
+    </div>
+
+    <!-- Back to Home Action -->
+    <div class="action-row">
+      <a href="/" class="btn-back">← Ana Sayfaya Geri Dön</a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>🎓 Alumni Portal - Backend API & Services • Eğitim ve akademik iş birliği amacıyla geliştirilmiştir.</p>
+  </footer>
+
+</body>
+</html>
