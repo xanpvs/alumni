@@ -3,34 +3,121 @@ const cors = require('cors');
 require('dotenv').config();
 
 const path = require('path');
+const apiRoutes = require('./routes/api');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Root route: serves single-page temporary homepage
+// Mount modular API routes (/api/health, /api/users, /api/swagger, etc.)
+app.use('/api', apiRoutes);
+
+/**
+ * @swagger
+ * /swagger:
+ *   get:
+ *     summary: Swagger UI Yönlendirmesi
+ *     tags: [Documentation]
+ *     responses:
+ *       302:
+ *         description: Swagger UI adresine yönlendirir.
+ */
+// Convenience redirects to Swagger UI
+app.get('/swagger', (req, res) => res.redirect('/api/swagger'));
+/**
+ * @swagger
+ * /docs:
+ *   get:
+ *     summary: Dokümantasyon Yönlendirmesi
+ *     tags: [Documentation]
+ *     responses:
+ *       302:
+ *         description: Swagger UI adresine yönlendirir.
+ */
+app.get('/docs', (req, res) => res.redirect('/api/swagger'));
+
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Alumni Portal Ana Sayfası
+ *     description: Alumni Portal tek sayfalı geçici ana sayfasını (HTML) sunar.
+ *     tags: [General & Legacy]
+ *     responses:
+ *       200:
+ *         description: HTML ana sayfası başarıyla yüklendi.
+ */
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// About route: serves temporary about page
+/**
+ * @swagger
+ * /about:
+ *   get:
+ *     summary: Hakkımızda Sayfası
+ *     description: Platformun misyonunu, vizyonunu ve teknik mimarisini tanıtan HTML sayfasını sunar.
+ *     tags: [General & Legacy]
+ *     responses:
+ *       200:
+ *         description: Hakkımızda HTML sayfası başarıyla yüklendi.
+ */
 app.get('/about', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/about.html'));
 });
 
-// Legacy ok route
+/**
+ * @swagger
+ * /ok:
+ *   get:
+ *     summary: Basit Durum Kontrolü (Legacy)
+ *     description: Temel sunucu erişilebilirlik kontrolü için düz metin 'ok' döner.
+ *     tags: [General & Legacy]
+ *     responses:
+ *       200:
+ *         description: Sunucu yanıt veriyor.
+ */
 app.get('/ok', (req, res) => {
   res.send('ok');
 });
 
-// Hello route: responds with 'Hello, World!'
+/**
+ * @swagger
+ * /hello:
+ *   get:
+ *     summary: Sabit Selamlama Uç Noktası
+ *     description: "Hello, World! metnini döner."
+ *     tags: [General & Legacy]
+ *     responses:
+ *       200:
+ *         description: Başarılı selamlama yanıtı.
+ */
 app.get('/hello', (req, res) => {
   res.send('Hello, World!');
 });
 
-// Dynamic hello route: responds with 'Hello, <Name>!'
+/**
+ * @swagger
+ * /hello/{name}:
+ *   get:
+ *     summary: Dinamik Parametrik Selamlama
+ *     description: URL'den girilen ismin baş harfini büyüterek kişiselleştirilmiş selamlama döner.
+ *     tags: [General & Legacy]
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Selamlanacak kişinin adı
+ *         example: berat
+ *     responses:
+ *       200:
+ *         description: Kişiselleştirilmiş 'Hello, <Name>!' yanıtı.
+ */
 app.get('/hello/:name', (req, res) => {
   const name = req.params.name;
   const formattedName = name
@@ -40,7 +127,34 @@ app.get('/hello/:name', (req, res) => {
   res.send(`Hello, ${formattedName}!`);
 });
 
-// Sum route: adds two numbers from URL parameters
+/**
+ * @swagger
+ * /sum/{a}/{b}:
+ *   get:
+ *     summary: Matematiksel Toplama Hesabı
+ *     description: URL parametreleri ile verilen iki sayıyı toplayarak sonucu döner.
+ *     tags: [General & Legacy]
+ *     parameters:
+ *       - in: path
+ *         name: a
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: İlk sayı
+ *         example: 5
+ *       - in: path
+ *         name: b
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: İkinci sayı
+ *         example: 4
+ *     responses:
+ *       200:
+ *         description: Toplam sonucu metin olarak döndürüldü.
+ *       400:
+ *         description: Sayısal olmayan geçersiz parametre girildi.
+ */
 app.get('/sum/:a/:b', (req, res) => {
   const num1 = Number(req.params.a);
   const num2 = Number(req.params.b);
@@ -53,12 +167,36 @@ app.get('/sum/:a/:b', (req, res) => {
   res.send(String(result));
 });
 
-// Optional helper route for /sum
+/**
+ * @swagger
+ * /sum:
+ *   get:
+ *     summary: Toplama Uç Noktası Kullanımı
+ *     description: Parametreli toplama uç noktasının kullanım bilgisini döner.
+ *     tags: [General & Legacy]
+ *     responses:
+ *       200:
+ *         description: Kullanım bilgisi metin olarak döndürüldü.
+ */
 app.get('/sum', (req, res) => {
   res.send('Kullanım: /sum/:sayi1/:sayi2 (Örn: /sum/5/4)');
 });
 
-// Health check endpoint
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Genel Sağlık Kontrolü (Legacy)
+ *     description: JSON formatında sistem sağlık durumunu döner.
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Sunucu çalışıyor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthResponse'
+ */
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -85,3 +223,6 @@ if (PORT !== ALT_PORT) {
     console.log(`Secondary port ${ALT_PORT} note: ${err.message}`);
   });
 }
+
+module.exports = app;
+
