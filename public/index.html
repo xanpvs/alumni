@@ -440,6 +440,399 @@
       color: var(--slate-600);
       font-size: 0.85rem;
     }
+
+    /* Users Section */
+    .users-section {
+      margin-bottom: 4rem;
+    }
+
+    .users-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+      gap: 1.75rem;
+    }
+
+    .user-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    @media (max-width: 480px) {
+      .user-card {
+        padding: 1.25rem;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .card-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-subtitle {
+      color: var(--slate-600);
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: white;
+      color: var(--secondary);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .badge {
+      padding: 0.3rem 0.7rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .badge-post {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-count {
+      background: var(--slate-100);
+      color: var(--slate-600);
+      border: 1px solid var(--border);
+    }
+
+    .btn-refresh {
+      background: var(--slate-100);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-refresh:hover {
+      background: #e2e8f0;
+    }
+
+    .feedback-box {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .feedback-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .feedback-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .postman-tip-box {
+      margin-top: 1.5rem;
+      background: #0f172a;
+      color: #94a3b8;
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      font-size: 0.82rem;
+      border: 1px solid #334155;
+    }
+
+    .postman-tip-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #f8fafc;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .postman-tip-box code {
+      display: block;
+      margin-top: 0.35rem;
+      font-family: monospace;
+      color: #38bdf8;
+      line-height: 1.5;
+      font-size: 0.78rem;
+      word-break: break-all;
+      background: #1e293b;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+    }
+
+    .users-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 520px;
+      overflow-y: auto;
+      padding-right: 0.35rem;
+    }
+
+    .user-item {
+      background: var(--slate-50);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .user-item:hover {
+      border-color: #cbd5e1;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .user-info-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--secondary);
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-details {
+      font-size: 0.8rem;
+      color: var(--slate-600);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .role-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .role-alumni { background: #dbeafe; color: #1e40af; }
+    .role-faculty { background: #fef3c7; color: #92400e; }
+    .role-student { background: #e0e7ff; color: #3730a3; }
+    .role-admin { background: #fce7f3; color: #9d174d; }
+
+    /* Action buttons on user card */
+    .user-actions {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+      margin-top: 0.4rem;
+    }
+
+    .btn-action-sm {
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .btn-action-sm:hover {
+      background: var(--slate-100);
+    }
+
+    .btn-action-delete {
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+
+    .btn-action-delete:hover {
+      background: #fef2f2;
+    }
+
+    .btn-action-edit {
+      color: #2563eb;
+      border-color: #bfdbfe;
+    }
+
+    .btn-action-edit:hover {
+      background: #eff6ff;
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      max-width: 520px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--slate-600);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-put {
+      background: #2563eb;
+      color: white;
+    }
+    .btn-put:hover { background: #1d4ed8; }
+
+    .btn-patch {
+      background: #0d9488;
+      color: white;
+    }
+    .btn-patch:hover { background: #0f766e; }
+
+    .btn-cancel {
+      background: var(--slate-100);
+      color: var(--slate-600);
+      flex: 0 0 auto;
+    }
+    .btn-cancel:hover { background: #e2e8f0; }
   </style>
 </head>
 <body>
@@ -522,12 +915,119 @@
       </div>
     </div>
 
+    <!-- User Management Section (POST & GET /api/users) -->
+    <section id="users-management" class="users-section">
+      <div class="section-title">
+        <h2>👥 Kullanıcı Yönetim Merkezi</h2>
+        <p>RESTful <code>POST /api/users</code> ile sisteme yeni kullanıcı kaydedin, <code>GET /api/users</code> ile anlık listeyi çekin.</p>
+      </div>
+
+      <div class="users-grid-container">
+        <!-- Add User Form (POST) -->
+        <div class="user-card form-card">
+          <div class="card-header">
+            <h3><span>📝</span> Yeni Kullanıcı Kaydet</h3>
+            <span class="badge badge-post">POST /api/users</span>
+          </div>
+          <p class="card-subtitle">Formu doldurarak backend REST API'sine JSON formatında kullanıcı kaydedin.</p>
+
+          <form id="userForm" onsubmit="handleUserSubmit(event)">
+            <div class="form-group">
+              <label for="userName">Ad Soyad *</label>
+              <input type="text" id="userName" class="form-input" placeholder="Örn: Zeynep Kaya" required>
+            </div>
+
+            <div class="form-group">
+              <label for="userEmail">E-posta Adresi *</label>
+              <input type="email" id="userEmail" class="form-input" placeholder="Örn: zeynep@alumni.edu" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" style="flex: 1;">
+                <label for="userRole">Rol</label>
+                <select id="userRole" class="form-input">
+                  <option value="Alumni">🎓 Alumni (Mezun)</option>
+                  <option value="Faculty">👨‍🏫 Faculty (Akademisyen)</option>
+                  <option value="Student">📚 Student (Öğrenci)</option>
+                  <option value="Admin">🔐 Admin (Yönetici)</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="flex: 1;">
+                <label for="userDept">Bölüm / Departman</label>
+                <input type="text" id="userDept" class="form-input" placeholder="Örn: Bilgisayar Mühendisliği">
+              </div>
+            </div>
+
+            <button type="submit" id="btnSubmitUser" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 0.5rem; font-size: 0.95rem; border: none; border-radius: 8px; background: #2563eb; color: white; font-weight: 700; cursor: pointer;">
+              <span>💾</span> Kullanıcıyı Kaydet (POST /api/users)
+            </button>
+          </form>
+
+          <div id="formFeedback" class="feedback-box" style="display: none;"></div>
+
+          <!-- Postman Helper Box -->
+          <div class="postman-tip-box">
+            <div class="postman-tip-header">
+              <span>📬</span> Postman ile Test Rehberi (Tüm Metotlar)
+            </div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem;">Postman üzerinden doğrudan deneyebileceğiniz uç noktalar:</div>
+            <code><strong>GET</strong> http://localhost/api/users/:id &rarr; Kişi detayını getirir</code>
+            <code><strong>POST</strong> http://localhost/api/users &rarr; Yeni kullanıcı ekler</code>
+            <code><strong>PUT</strong> http://localhost/api/users/:id &rarr; Tüm bilgileri yeniler</code>
+            <code><strong>PATCH</strong> http://localhost/api/users/:id &rarr; Kısmi alan günceller</code>
+            <code><strong>DELETE</strong> http://localhost/api/users/:id &rarr; Kişiyi siler</code>
+          </div>
+        </div>
+
+        <!-- User List (GET) -->
+        <div class="user-card list-card">
+          <div class="card-header">
+            <h3><span>📋</span> Kayıtlı Kullanıcılar</h3>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="userCountBadge" class="badge badge-count">0 Kullanıcı</span>
+              <button type="button" class="btn-refresh" onclick="loadUsers()" title="Listeyi Yenile">🔄 Yenile</button>
+            </div>
+          </div>
+          <p class="card-subtitle"><code>GET /api/users</code> canlı listesi. Her karttan <strong>Görüntüle (GET)</strong>, <strong>Düzenle (PUT/PATCH)</strong> veya <strong>Sil (DELETE)</strong> yapabilirsiniz:</p>
+
+          <div id="usersListContainer" class="users-list">
+            <div style="text-align: center; color: var(--slate-600); padding: 2rem;">Kullanıcılar yükleniyor...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Interactive API Section -->
     <section id="endpoints" class="api-showcase">
-      <h3><span>⚡</span> Canlı Test Edilebilir GET Rotaları</h3>
-      <p>Sunucuda şu anda aktif olan tüm GET metotlu uç noktaları doğrudan tarayıcınızda veya aşağıdaki panelde deneyebilirsiniz:</p>
+      <h3><span>⚡</span> Canlı Test Edilebilir API Rotaları</h3>
+      <p>Sunucuda şu anda aktif olan tüm REST metotlu uç noktaları doğrudan deneyebilirsiniz:</p>
 
       <div class="api-links-grid">
+        <a href="/api/users" target="_blank" class="api-link-card" style="border-color: #86efac; background: #f0fdf4;">
+          <span class="api-method" style="background: #10b981; color: white;">GET</span>
+          <span class="api-path">/api/users</span>
+          <span class="api-desc">Kayıtlı Tüm Kullanıcılar (JSON)</span>
+        </a>
+
+        <a href="/api/users/2" target="_blank" class="api-link-card" style="border-color: #86efac; background: #f0fdf4;">
+          <span class="api-method" style="background: #10b981; color: white;">GET</span>
+          <span class="api-path">/api/users/2</span>
+          <span class="api-desc">ID=2 Tekil Kullanıcı Detayı</span>
+        </a>
+
+        <a href="/api/health" target="_blank" class="api-link-card" style="border-color: #93c5fd; background: #f8fafc;">
+          <span class="api-method" style="background: #2563eb; color: white;">GET</span>
+          <span class="api-path">/api/health</span>
+          <span class="api-desc">JSON API Durumu: {"status":"ok"}</span>
+        </a>
+
+        <a href="/api" target="_blank" class="api-link-card">
+          <span class="api-method">GET</span>
+          <span class="api-path">/api</span>
+          <span class="api-desc">API Ana Dizin Bilgisi</span>
+        </a>
+
         <a href="/hello" target="_blank" class="api-link-card">
           <span class="api-method">GET</span>
           <span class="api-path">/hello</span>
@@ -551,17 +1051,26 @@
           <span class="api-path">/about</span>
           <span class="api-desc">Hakkımızda Sayfası</span>
         </a>
-        <a href="/health" target="_blank" class="api-link-card">
-          <span class="api-method">GET</span>
-          <span class="api-path">/health</span>
-          <span class="api-desc">Çıktı: {"status": "ok"}</span>
-        </a>
       </div>
 
       <!-- Quick Interactive In-page Tester -->
       <div class="tester-box">
         <div class="tester-title">🔍 Sayfa İçi Canlı İstek Deneyicisi</div>
-        
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;">Kullanıcı ID İşlemleri (/api/users/:id)</label>
+          <div class="tester-form">
+            <input type="number" id="userIdInput" class="tester-input" placeholder="ID (Örn: 2)" value="2" style="max-width: 120px;">
+            <button class="tester-btn" onclick="testUserById()" style="background: #10b981;">GET Bilgileri Getir</button>
+            <button class="tester-btn" onclick="testDeleteById()" style="background: #dc2626;">DELETE Sil</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;">JSON API Sağlık Kontrolü (/api/health)</label>
+          <button class="tester-btn" onclick="testHealth()" style="background: #2563eb;">GET /api/health Test Et</button>
+        </div>
+
         <div style="margin-bottom: 1.25rem;">
           <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;">İsim Gönder (/hello/:name)</label>
           <div class="tester-form">
@@ -597,6 +1106,10 @@
         <p>Express.js REST API</p>
       </div>
       <div class="tech-item">
+        <h4>Data Format</h4>
+        <p>JSON (REST API)</p>
+      </div>
+      <div class="tech-item">
         <h4>Database</h4>
         <p>MySQL 8.0</p>
       </div>
@@ -608,12 +1121,70 @@
 
   </main>
 
+  <!-- Edit User Modal -->
+  <div id="editModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">✏️ Kullanıcıyı Düzenle</h3>
+        <button type="button" class="btn-close-modal" onclick="closeEditModal()">×</button>
+      </div>
+      <form id="editUserForm" onsubmit="event.preventDefault()">
+        <input type="hidden" id="editUserId">
+        <div class="form-group">
+          <label for="editUserName">Ad Soyad *</label>
+          <input type="text" id="editUserName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label for="editUserEmail">E-posta Adresi *</label>
+          <input type="email" id="editUserEmail" class="form-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label for="editUserRole">Rol</label>
+            <select id="editUserRole" class="form-input">
+              <option value="Alumni">🎓 Alumni</option>
+              <option value="Faculty">👨‍🏫 Faculty</option>
+              <option value="Student">📚 Student</option>
+              <option value="Admin">🔐 Admin</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="editUserDept">Bölüm</label>
+            <input type="text" id="editUserDept" class="form-input">
+          </div>
+        </div>
+        <div id="editFeedback" class="feedback-box" style="display: none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-action btn-put" onclick="submitEditUser('PUT')" title="Tüm alanları yenileyerek günceller">
+            🔄 Tam Güncelle (PUT)
+          </button>
+          <button type="button" class="btn-action btn-patch" onclick="submitEditUser('PATCH')" title="Kısmi alanları günceller">
+            ⚡ Kısmi Güncelle (PATCH)
+          </button>
+          <button type="button" class="btn-action btn-cancel" onclick="closeEditModal()">Kapat</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <p>🎓 Alumni Portal - Backend API & Services • Eğitim ve akademik iş birliği amacıyla geliştirilmiştir.</p>
   </footer>
 
   <script>
+    async function testHealth() {
+      const output = document.getElementById('outputBox');
+      output.innerText = 'API durum isteği (/api/health) gönderiliyor...';
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        output.innerText = 'HTTP ' + res.status + ' ->\n' + JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.innerText = 'Hata: ' + err.message;
+      }
+    }
+
     async function testHello() {
       const name = document.getElementById('nameInput').value.trim() || 'misafir';
       const output = document.getElementById('outputBox');
@@ -640,6 +1211,213 @@
         output.innerText = 'Hata: ' + err.message;
       }
     }
+
+    // --- Users API Integration (GET, POST, PUT, PATCH, DELETE) ---
+    async function loadUsers() {
+      const container = document.getElementById('usersListContainer');
+      const countBadge = document.getElementById('userCountBadge');
+      try {
+        const res = await fetch('/api/users');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const users = await res.json();
+        const userList = Array.isArray(users) ? users : (users.users || users.data || []);
+        countBadge.innerText = userList.length + ' Kullanıcı';
+
+        if (userList.length === 0) {
+          container.innerHTML = '<div style="text-align: center; color: var(--slate-600); padding: 2rem;">Henüz kayıtlı kullanıcı bulunmuyor.</div>';
+          return;
+        }
+
+        container.innerHTML = userList.map(u => {
+          const initial = (u.name || '?').charAt(0).toUpperCase();
+          const roleClass = 'role-' + (u.role || 'alumni').toLowerCase();
+          return `
+            <div class="user-item">
+              <div class="user-avatar">${initial}</div>
+              <div class="user-info-main">
+                <div class="user-name">#${u.id} ${escapeHtml(u.name)}</div>
+                <div class="user-details">
+                  <span>✉️ ${escapeHtml(u.email)}</span>
+                  <span>🏛️ ${escapeHtml(u.department || 'Genel')}</span>
+                </div>
+                <div class="user-actions">
+                  <button type="button" class="btn-action-sm" onclick="viewUser(${u.id})" title="GET /api/users/${u.id}">👁️ Görüntüle</button>
+                  <button type="button" class="btn-action-sm btn-action-edit" onclick="openEditModal(${u.id})" title="PUT veya PATCH ile Düzenle">✏️ Düzenle</button>
+                  <button type="button" class="btn-action-sm btn-action-delete" onclick="deleteUser(${u.id}, '${escapeHtml(u.name)}')" title="DELETE /api/users/${u.id}">🗑️ Sil</button>
+                </div>
+              </div>
+              <div class="user-meta">
+                <span class="role-badge ${roleClass}">${escapeHtml(u.role || 'Alumni')}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="color: #ef4444; padding: 1rem; text-align: center;">Kullanıcılar yüklenemedi: ${err.message}</div>`;
+      }
+    }
+
+    async function handleUserSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('userName').value.trim();
+      const email = document.getElementById('userEmail').value.trim();
+      const role = document.getElementById('userRole').value;
+      const department = document.getElementById('userDept').value.trim();
+      const feedback = document.getElementById('formFeedback');
+      const btn = document.getElementById('btnSubmitUser');
+
+      btn.disabled = true;
+      btn.innerText = 'Kaydediliyor...';
+      feedback.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, role, department })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && res.status === 201) {
+          feedback.className = 'feedback-box feedback-success';
+          feedback.innerText = `✅ Başarılı! #${data.id || data.user?.id} ID ile "${name}" başarıyla kaydedildi.`;
+          feedback.style.display = 'block';
+          document.getElementById('userName').value = '';
+          document.getElementById('userEmail').value = '';
+          document.getElementById('userDept').value = '';
+          loadUsers();
+        } else {
+          feedback.className = 'feedback-box feedback-error';
+          feedback.innerText = `❌ Hata: ${data.error || data.message || 'Kullanıcı kaydedilemedi.'}`;
+          feedback.style.display = 'block';
+        }
+      } catch (err) {
+        feedback.className = 'feedback-box feedback-error';
+        feedback.innerText = '❌ Ağ Hatası: ' + err.message;
+        feedback.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>💾</span> Kullanıcıyı Kaydet (POST /api/users)';
+      }
+    }
+
+    async function viewUser(id) {
+      const output = document.getElementById('outputBox');
+      output.innerText = `ID=${id} olan kullanıcı getiriliyor (GET /api/users/${id})...`;
+      document.getElementById('endpoints').scrollIntoView({ behavior: 'smooth' });
+      try {
+        const res = await fetch(`/api/users/${id}`);
+        const data = await res.json();
+        output.innerText = `GET /api/users/${id} -> HTTP ${res.status}\n` + JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.innerText = `Hata: ${err.message}`;
+      }
+    }
+
+    async function openEditModal(id) {
+      const feedback = document.getElementById('editFeedback');
+      feedback.style.display = 'none';
+      try {
+        const res = await fetch(`/api/users/${id}`);
+        if (!res.ok) throw new Error('Kullanıcı bilgisi alınamadı');
+        const user = await res.json();
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('editUserName').value = user.name || '';
+        document.getElementById('editUserEmail').value = user.email || '';
+        document.getElementById('editUserRole').value = user.role || 'Alumni';
+        document.getElementById('editUserDept').value = user.department || '';
+        document.getElementById('modalTitle').innerText = `✏️ Kullanıcıyı Düzenle (#${user.id} - ${user.name})`;
+        document.getElementById('editModal').style.display = 'flex';
+      } catch (err) {
+        alert('Hata: ' + err.message);
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function submitEditUser(method) {
+      const id = document.getElementById('editUserId').value;
+      const name = document.getElementById('editUserName').value.trim();
+      const email = document.getElementById('editUserEmail').value.trim();
+      const role = document.getElementById('editUserRole').value;
+      const department = document.getElementById('editUserDept').value.trim();
+      const feedback = document.getElementById('editFeedback');
+
+      try {
+        const res = await fetch(`/api/users/${id}`, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, role, department })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          feedback.className = 'feedback-box feedback-success';
+          feedback.innerText = `✅ Başarılı (${method})! #${id} nolu kullanıcı güncellendi.`;
+          feedback.style.display = 'block';
+          loadUsers();
+          setTimeout(() => closeEditModal(), 1200);
+        } else {
+          feedback.className = 'feedback-box feedback-error';
+          feedback.innerText = `❌ Hata (${method}): ${data.error || data.message || 'Güncellenemedi'}`;
+          feedback.style.display = 'block';
+        }
+      } catch (err) {
+        feedback.className = 'feedback-box feedback-error';
+        feedback.innerText = `❌ Ağ Hatası: ${err.message}`;
+        feedback.style.display = 'block';
+      }
+    }
+
+    async function deleteUser(id, name) {
+      if (!confirm(`"${name}" (ID: ${id}) adlı kullanıcıyı silmek istediğinize emin misiniz?\nBu işlem DELETE /api/users/${id} isteği gönderecektir.`)) {
+        return;
+      }
+
+      const output = document.getElementById('outputBox');
+      output.innerText = `Kullanıcı #${id} siliniyor (DELETE /api/users/${id})...`;
+      document.getElementById('endpoints').scrollIntoView({ behavior: 'smooth' });
+      try {
+        const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        output.innerText = `DELETE /api/users/${id} -> HTTP ${res.status}\n` + JSON.stringify(data, null, 2);
+        loadUsers();
+      } catch (err) {
+        output.innerText = `Hata: ${err.message}`;
+      }
+    }
+
+    async function testUserById() {
+      const id = document.getElementById('userIdInput').value.trim();
+      if (!id) return alert('Lütfen bir ID girin');
+      await viewUser(id);
+    }
+
+    async function testDeleteById() {
+      const id = document.getElementById('userIdInput').value.trim();
+      if (!id) return alert('Lütfen bir ID girin');
+      await deleteUser(id, `ID ${id}`);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Auto load users on startup
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUsers();
+    });
   </script>
 </body>
 </html>

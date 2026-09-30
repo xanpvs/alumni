@@ -85,4 +85,7 @@ run.bat
 
 # 3. Tarayıcıdan erişin
 http://localhost/
+
+# 4. Sunucuyu kapatmak için:
+stop.bat
 ```

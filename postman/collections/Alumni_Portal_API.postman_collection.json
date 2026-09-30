@@ -1,0 +1,189 @@
+{
+  "info": {
+    "_postman_id": "b8a9c2e1-4567-4e89-91a1-alumniportal01",
+    "name": "Alumni Portal API",
+    "description": "Alumni Portal Backend REST API Collection for Postman - Full CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "API health check and status verification"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        },
+        "description": "Retrieve all registered users"
+      },
+      "response": []
+    },
+    {
+      "name": "Get User by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "2"]
+        },
+        "description": "Retrieve single user by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Register New User (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Zeynep Kaya\",\n  \"email\": \"zeynep@alumni.edu\",\n  \"role\": \"Alumni\",\n  \"department\": \"Endüstri Mühendisliği\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        },
+        "description": "Create and register a new user in the platform"
+      },
+      "response": []
+    },
+    {
+      "name": "Update User - Full (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Prof. Dr. Ayşe Yılmaz\",\n  \"email\": \"ayse.yilmaz@faculty.edu\",\n  \"role\": \"Faculty\",\n  \"department\": \"Yapay Zeka Anabilim Dalı\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "2"]
+        },
+        "description": "Fully replace a user record by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Update User - Partial (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"department\": \"Siber Güvenlik Anabilim Dalı\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "2"]
+        },
+        "description": "Partially update specific fields of a user record"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User (DELETE)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "2"]
+        },
+        "description": "Delete a user by ID"
+      },
+      "response": []
+    }
+  ]
+}

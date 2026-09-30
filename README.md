@@ -144,6 +144,19 @@ cd alumni
 docker-compose up --build
 ```
 
+Open [http://localhost](http://localhost) to see the portal. The backend serves the committed `public/index.html` and `public/about.html` files, so the website UI is included in a fresh clone and in the Docker image.
+
+### Running locally
+```bash
+npm ci
+npm start
+```
+
+Then open [http://localhost:3000](http://localhost:3000). On Windows, `run.bat` starts the same Node.js server after dependencies are installed.
+
+### Postman collection
+Import `postman/collections/Alumni_Portal_API.postman_collection.json` into Postman to use the included health check and user CRUD requests. Its `baseUrl` defaults to `http://localhost`; change it to `http://localhost:3000` when using the local Node.js server.
+
 ---
 
 ## 📄 License
