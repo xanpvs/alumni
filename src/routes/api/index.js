@@ -5,6 +5,7 @@ const swaggerSpec = require('../../config/swagger');
 
 const healthRoutes = require('./health.routes');
 const usersRoutes = require('./users.routes');
+const announcementsRoutes = require('./announcements.routes');
 
 /**
  * @swagger
@@ -95,7 +96,13 @@ router.get('/', (req, res) => {
       user_detail: 'GET /api/users/:id',
       user_replace_full: 'PUT /api/users/:id',
       user_update_partial: 'PATCH /api/users/:id',
-      user_delete: 'DELETE /api/users/:id'
+      user_delete: 'DELETE /api/users/:id',
+      announcements_list: 'GET /api/announcements',
+      announcement_create: 'POST /api/announcements',
+      announcement_detail: 'GET /api/announcements/:id',
+      announcement_update: 'PUT /api/announcements/:id',
+      announcement_patch: 'PATCH /api/announcements/:id',
+      announcement_delete: 'DELETE /api/announcements/:id'
     }
   });
 });
@@ -103,5 +110,6 @@ router.get('/', (req, res) => {
 // Sub-routes mounting
 router.use('/health', healthRoutes);
 router.use('/users', usersRoutes);
+router.use('/announcements', announcementsRoutes);
 
 module.exports = router;

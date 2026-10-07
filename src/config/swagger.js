@@ -33,6 +33,10 @@ const swaggerOptions = {
         description: 'Kullanıcı kayıt, listeleme, güncelleme ve silme (CRUD) işlemleri'
       },
       {
+        name: 'Announcements',
+        description: 'Duyuru listeleme, oluşturma, güncelleme ve silme işlemleri'
+      },
+      {
         name: 'Health',
         description: 'Sistem ve API sağlık/durum kontrolü'
       },
@@ -85,6 +89,32 @@ const swaggerOptions = {
               example: '2026-09-30T11:30:00.000Z',
               description: 'Son güncellenme tarihi'
             }
+          }
+        },
+        Announcement: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1 },
+            title: { type: 'string', example: 'Mezunlar buluşması' },
+            content: { type: 'string', example: 'Etkinlik detayları...' },
+            author: { type: 'string', example: 'Alumni Portal' },
+            category: { type: 'string', example: 'Etkinlik' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' }
+          }
+        },
+        AnnouncementInput: {
+          type: 'object', required: ['title', 'content'],
+          properties: {
+            title: { type: 'string', maxLength: 160 }, content: { type: 'string' },
+            author: { type: 'string' }, category: { type: 'string' }
+          }
+        },
+        AnnouncementPartialInput: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', maxLength: 160 }, content: { type: 'string' },
+            author: { type: 'string' }, category: { type: 'string' }
           }
         },
         UserInput: {

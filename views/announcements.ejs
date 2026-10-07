@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alumni Portal | Duyurular</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#172033;background:#f4f6fa}body{max-width:1080px;margin:36px auto;padding:0 18px}h1,h2,h3{margin:0 0 12px}.panel,.card{background:white;border:1px solid #dce2ec;border-radius:14px;padding:20px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;align-items:end}label{display:grid;gap:6px;font-size:14px}input,textarea,button{font:inherit;padding:10px;border:1px solid #c7cfdd;border-radius:8px}textarea{min-height:90px;resize:vertical}button{background:#2348a0;color:white;border:0;cursor:pointer}button.danger{background:#b42318}.message{color:#146c43}.error{color:#b42318}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:4px}.card p{white-space:pre-wrap}.meta{color:#64748b;font-size:14px}.actions{display:flex;gap:8px;margin-top:12px}a{color:#2348a0}@media(max-width:600px){body{margin:20px auto}.actions{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <p><a href="/">← Ana sayfa</a></p>
+  <h1>Duyurular</h1>
+  <p>Duyuru kayıtları sunucu belleğinde tutulur; sunucu yeniden başladığında başlangıç duyurularına döner.</p>
+  <% if (message) { %><p class="message"><%= message %></p><% } %>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+  <% if (selected) { %><section class="panel"><h2>Duyuru detayı</h2><h3><%= selected.title %></h3><p><%= selected.content %></p><p class="meta"><%= selected.category %> · <%= selected.author %></p><a href="/announcements">Tüm duyurular</a></section><% } %>
+  <section class="panel">
+    <h2>Yeni duyuru</h2>
+    <form method="post" action="/announcements" class="grid">
+      <label>Başlık<input name="title" maxlength="160" required value="<%= form.title || '' %>"></label>
+      <label>Kategori<input name="category" value="<%= form.category || '' %>" placeholder="Genel, Etkinlik, Akademik..."></label>
+      <label>Yayınlayan<input name="author" value="<%= form.author || '' %>" placeholder="Alumni Portal"></label>
+      <label style="grid-column:1/-1">İçerik<textarea name="content" required><%= form.content || '' %></textarea></label>
+      <button type="submit">Duyuru yayınla</button>
+    </form>
+  </section>
+  <section><h2>Yayınlanan duyurular (<%= announcements.length %>)</h2>
+    <div class="cards">
+      <% announcements.forEach(item => { %>
+        <article class="card">
+          <p class="meta"><%= item.category %> · <%= item.author %> · <%= new Date(item.createdAt).toLocaleDateString('tr-TR') %></p>
+          <h3><a href="/announcements/<%= item.id %>"><%= item.title %></a></h3><p><%= item.content %></p>
+          <form data-method="PUT" action="/announcements/<%= item.id %>" class="grid">
+            <label>Başlık<input name="title" maxlength="160" required value="<%= item.title %>"></label>
+            <label>Kategori<input name="category" value="<%= item.category %>"></label>
+            <label>Yayınlayan<input name="author" value="<%= item.author %>"></label>
+            <label style="grid-column:1/-1">İçerik<textarea name="content" required><%= item.content %></textarea></label>
+            <button type="submit">Değişiklikleri kaydet</button>
+          </form>
+          <div class="actions"><form data-method="DELETE" action="/announcements/<%= item.id %>"><button class="danger" type="submit">Duyuruyu sil</button></form></div>
+        </article>
+      <% }) %>
+      <% if (announcements.length === 0) { %><p>Henüz duyuru yok. İlk duyuruyu yukarıdan ekleyin.</p><% } %>
+    </div>
+  </section>
+  <script>
+    document.querySelectorAll('form[data-method]').forEach(form => form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (form.dataset.method === 'DELETE' && !confirm('Bu duyuru silinsin mi?')) return;
+      const response = await fetch(form.action, { method: form.dataset.method, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(new FormData(form)) });
+      document.open(); document.write(await response.text()); document.close();
+    }));
+  </script>
+</body>
+</html>

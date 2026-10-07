@@ -5,6 +5,7 @@ require('dotenv').config();
 const path = require('path');
 const apiRoutes = require('./routes/api');
 const userRoutes = require('./routes/users.routes');
+const announcementRoutes = require('./routes/announcements.routes');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -17,6 +18,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Mount web interface CRUD routes and modular API routes.
 app.use('/users', userRoutes);
+app.use('/announcements', announcementRoutes);
 app.use('/api', apiRoutes);
 
 /**

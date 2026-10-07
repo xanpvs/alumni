@@ -62,6 +62,12 @@ The `/api/...` endpoints communicate using JSON. The `/users` interface renders 
 | `PUT` | `/api/users/:id` | Full replacement/update of user | Full object: `{ "name", "email", "role", "department" }` | `{"success":true, "message":"...", "user":{...}}` (HTTP 200) |
 | `PATCH` | `/api/users/:id` | Partial update of user | Partial fields: e.g. `{ "department": "..." }` | `{"success":true, "message":"...", "user":{...}}` (HTTP 200) |
 | `DELETE` | `/api/users/:id` | Delete user by ID | *None* | `{"success":true, "message":"...", "user":{...}}` (HTTP 200) |
+| `GET` | `/announcements` | Duyuruları listele ve yönetim arayüzünü aç | *None* | `HTML view` |
+| `POST` | `/announcements` | Arayüzden duyuru oluştur | `title`, `content`, optional `author`, `category` | `HTML view` (HTTP 201) |
+| `GET` | `/announcements/:id` | Duyuru detayını arayüzde aç | *None* | `HTML view` |
+| `PUT/PATCH/DELETE` | `/announcements/:id` | Arayüzden duyuruyu güncelle veya sil | Full/partial form fields | `HTML view` |
+| `GET/POST` | `/api/announcements` | Duyuruları listele veya oluştur | JSON: `title`, `content`, optional `author`, `category` | JSON |
+| `GET/PUT/PATCH/DELETE` | `/api/announcements/:id` | Duyuruyu oku, güncelle veya sil | JSON fields | JSON |
 
 Bu tablo temel örnekleri gösterir. Eski/genel rotalar dahil tam ve güncel metot, parametre ve yanıt listesi için Swagger UI'yi kullanın; yeni API rotalarını yukarıdaki kurala göre belgeleyin.
 
@@ -178,6 +184,12 @@ Bu proje **MVC (Model-View-Controller)** mimarisini kullanır. Her katmanın tek
 
 > **View:** `/users` arayüzü EJS ile sunucu tarafında render edilir. `/users` rotaları listeleme, detay, ekleme, tam güncelleme, kısmi güncelleme ve silme işlemlerini EJS view ile sunar. `/api/users` JSON tabanlı API olarak çalışmaya devam eder.
 
+### 📣 Site Duyuruları
+
+Sitede ana sayfanın üst menüsündeki **Duyuruları yönet** bağlantısı, duyuruların yayınlandığı ve yönetildiği `/announcements` arayüzünü açar. Bu ekrandan duyuru başlığı ve içeriği oluşturabilir; kategori ve yayınlayan bilgisi ekleyebilir; kayıtları listeleyebilir, ayrıntılarını görüntüleyebilir, düzenleyebilir ve silebilirsiniz. Örnek duyurular ilk açılışta hazır gelir.
+
+Duyurular `src/models/announcement.model.js` içindeki bellek içi depoda saklanır. Harici veritabanı kurulumu gerekmez; uygulama yeniden başlatıldığında bellekte yapılan değişiklikler silinir ve başlangıç duyuruları yeniden yüklenir. Arayüz `/announcements` rotalarını, JSON API ise `/api/announcements` rotalarını kullanır. Web controller'ı `announcement.controller.js`, API controller'ı `apiAnnouncement.controller.js` dosyasındadır. API uç noktaları Swagger dokümantasyonunda da yer alır.
+
 ---
 
 ## 📁 Project Structure
@@ -190,16 +202,22 @@ alumni/
 │   ├── controllers/                # [Controller] İş mantığı ve HTTP yanıtları
 │   │   ├── health.controller.js    #   → GET /api/health handler'ı
 │   │   └── user.controller.js      #   → Users CRUD handler'ları
+│   │   ├── announcement.controller.js # → Duyuru web arayüzü
+│   │   └── apiAnnouncement.controller.js # → Duyuru JSON API
 │   ├── models/                     # [Model] Veri katmanı
 │   │   └── user.model.js           #   → In-memory users verisi ve CRUD fonksiyonları
+│   │   └── announcement.model.js   #   → In-memory duyuru verisi ve CRUD
 │   ├── routes/                     # [Router] URL eşleme + @swagger belgeleri
+│   │   ├── announcements.routes.js #   → /announcements arayüz rotaları
 │   │   └── api/
 │   │       ├── health.routes.js    #   → /api/health rotaları
 │   │       ├── users.routes.js     #   → /api/users rotaları
+│   │       ├── announcements.routes.js # → /api/announcements rotaları
 │   │       └── index.js            #   → API router birleştirici
 │   └── index.js                    # Express uygulama girişi, middleware, legacy rotalar
 ├── views/
-│   └── users.ejs                   #   → Kullanıcı listeleme ve oluşturma view'ı
+│   ├── users.ejs                   #   → Kullanıcı arayüzü
+│   └── announcements.ejs           #   → Duyuru yönetim arayüzü
 ├── public/
 │   ├── index.html                  # Statik ana sayfa
 │   └── about.html                  # Statik hakkımızda sayfası
