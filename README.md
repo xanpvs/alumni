@@ -24,7 +24,7 @@ The primary objective of the **Alumni Portal** is to bridge the gap between grad
 - **Data Format & Interchange:** [JSON](https://www.json.org/) (JavaScript Object Notation)
 - **Database:** [MySQL](https://www.mysql.com/)
 - **Containerization:** [Docker](https://www.docker.com/) & Docker Compose
-- **Architecture:** RESTful API (JSON-driven)
+- **Architecture:** MVC (Model-View-Controller) + RESTful API (JSON-driven)
 
 ---
 
@@ -159,6 +159,105 @@ Import `postman/collections/Alumni_Portal_API.postman_collection.json` into Post
 
 ---
 
+## 🏗️ Architecture — MVC
+
+Bu proje **MVC (Model-View-Controller)** mimarisini kullanır. Her katmanın tek bir sorumluluğu vardır; bu sayede kod okunabilir, test edilebilir ve genişletilebilir olarak kalır.
+
+| Katman | Klasör | Sorumluluk |
+|---|---|---|
+| **Model** | `src/models/` | Veri kaynağı, seed verisi, temel CRUD yardımcıları |
+| **Controller** | `src/controllers/` | İş mantığı, validasyon, HTTP yanıt oluşturma |
+| **Router** | `src/routes/` | Yalnızca URL eşleme; ilgili controller fonksiyonunu çağırır. Swagger `@swagger` JSDoc blokları burada yer alır. |
+
+> **Not:** Express.js bir "View" katmanı gerektirmez; bu backend-only API projesinde Router, MVC'nin Route/View sorumluluğunu üstlenir.
+
+---
+
+## 📁 Project Structure
+
+```
+alumni/
+├── src/
+│   ├── config/
+│   │   └── swagger.js              # Swagger / OpenAPI 3.0 yapılandırması
+│   ├── controllers/                # [Controller] İş mantığı ve HTTP yanıtları
+│   │   ├── health.controller.js    #   → GET /api/health handler'ı
+│   │   └── user.controller.js      #   → Users CRUD handler'ları
+│   ├── models/                     # [Model] Veri katmanı
+│   │   └── user.model.js           #   → In-memory users verisi ve CRUD fonksiyonları
+│   ├── routes/                     # [Router] URL eşleme + @swagger belgeleri
+│   │   └── api/
+│   │       ├── health.routes.js    #   → /api/health rotaları
+│   │       ├── users.routes.js     #   → /api/users rotaları
+│   │       └── index.js            #   → API router birleştirici
+│   └── index.js                    # Express uygulama girişi, middleware, legacy rotalar
+├── public/
+│   ├── index.html                  # Statik ana sayfa
+│   └── about.html                  # Statik hakkımızda sayfası
+├── postman/
+│   └── collections/
+│       └── Alumni_Portal_API.postman_collection.json
+├── .env.example                    # Ortam değişkenleri şablonu
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+└── README.md
+```
+
+### Geliştirici Kuralları
+
+- **Yeni bir API kaynağı eklerken** şu adımları izle:
+  1. `src/models/<kaynak>.model.js` — veri ve CRUD yardımcıları
+  2. `src/controllers/<kaynak>.controller.js` — iş mantığı ve handler'lar
+  3. `src/routes/api/<kaynak>.routes.js` — URL eşleme ve `@swagger` blokları
+  4. `src/routes/api/index.js` — yeni router'ı bağla
+- **Swagger belgeleri** yalnızca `src/routes/` altında tutulur; `swagger-jsdoc` bu klasörü tarar.
+- **Veri katmanı** şu an in-memory (dizi) kullanır. İleride MySQL bağlantısına geçildiğinde yalnızca `src/models/` katmanı değişir; Controller ve Router katmanları etkilenmez.
+
+---
+
+## 🧩 User Model — `src/models/user.model.js`
+
+Kullanıcı verisi ve tüm CRUD operasyonları **`src/models/user.model.js`** dosyasında kapsüllenir. Herhangi bir veritabanı bağlantısı gerektirmez; veri uygulama çalıştığı sürece bellekte (in-memory) tutulur.
+
+### Yapı
+
+Dosya iki ana yapıdan oluşur:
+
+#### `User` Sınıfı
+Tek bir kullanıcıyı temsil eden veri sınıfıdır. Yapıcı (constructor), gelen ham veriyi temizler ve normalize eder:
+- `name`, `email`, `role`, `department`, `createdAt`, `updatedAt` alanlarını yönetir.
+- `email` otomatik olarak küçük harfe çevrilir ve boşluklar temizlenir.
+- `role` belirtilmezse `'Alumni'`, `department` belirtilmezse `'Genel'` atanır.
+- `toJSON()` metodu ile temiz, seri hale getirilebilir bir nesne üretir.
+
+#### `UserStore` — CRUD Operasyonları
+
+Her metod `{ success: boolean, error?: string, user?: User }` formatında sonuç döner; bu sayede controller'lar `try/catch` yazmak zorunda kalmaz.
+
+| Metod | Karşılık | Açıklama |
+|---|---|---|
+| `UserStore.create(data)` | `POST /api/users` | Yeni kullanıcı oluşturur; e-posta format ve tekrar kontrolü yapar |
+| `UserStore.getAll()` | `GET /api/users` | Tüm kullanıcıları kopya dizi olarak döner |
+| `UserStore.getById(id)` | `GET /api/users/:id` | ID'ye göre kullanıcı arar; bulamazsa hata döner |
+| `UserStore.update(id, data)` | `PUT /api/users/:id` | Tüm alanları yeniden yazar (tam güncelleme) |
+| `UserStore.patch(id, data)` | `PATCH /api/users/:id` | Yalnızca gönderilen alanları günceller (kısmi güncelleme) |
+| `UserStore.delete(id)` | `DELETE /api/users/:id` | Kullanıcıyı bellekten siler |
+
+### Validasyon Kuralları
+
+- `name` — zorunlu, boş olamaz
+- `email` — zorunlu, geçerli format (`isim@domain.com`), sistemde tekil olmalı
+- `role` — opsiyonel; geçerli değerler: `Alumni`, `Faculty`, `Admin` (varsayılan: `Alumni`)
+- `department` — opsiyonel (varsayılan: `Genel`)
+
+### Veritabanına Geçiş
+
+Şu an veri bellekte tutulmaktadır (sunucu yeniden başlatıldığında sıfırlanır). İleride MySQL veya başka bir veritabanına geçildiğinde **yalnızca bu dosyadaki** `UserStore` metodlarının içi değiştirilir; Controller ve Router katmanları hiç etkilenmez.
+
+---
+
 ## 📄 License
+
 
 This project is developed for educational and academic collaboration purposes.

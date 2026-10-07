@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const HealthController = require('../../controllers/health.controller');
 
 /**
  * @swagger
@@ -16,12 +17,6 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/HealthResponse'
  */
-router.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    message: 'Alumni Portal API is running successfully',
-    timestamp: new Date().toISOString()
-  });
-});
+router.get('/', HealthController.getStatus);
 
 module.exports = router;
