@@ -24,7 +24,7 @@ The primary objective of the **Alumni Portal** is to bridge the gap between grad
 - **Data Format & Interchange:** [JSON](https://www.json.org/) (JavaScript Object Notation)
 - **Database:** [MySQL](https://www.mysql.com/)
 - **Containerization:** [Docker](https://www.docker.com/) & Docker Compose
-- **Architecture:** MVC (Model-View-Controller) + RESTful API (JSON-driven)
+- **Architecture:** MVC (Model-View-Controller) + EJS views for `/users` + JSON REST API under `/api`
 
 ---
 
@@ -40,15 +40,22 @@ Geçmiş API uç noktaları ve yeni eklenenler için OpenAPI 3.0 dokümantasyonu
 
 ---
 
+> **Zorunlu geliştirme kuralı — Swagger:** Projede yapılan her değişiklikle birlikte Swagger dokümantasyonunu gözden geçirin ve değişikliklerin yansıması için gerekli güncellemeleri aynı iş kapsamında yapın. Bu kural yalnızca route değişiklikleriyle sınırlı değildir; controller davranışı, istek/yanıt biçimi, model alanları, validasyon, hata durumları ve diğer API davranışlarındaki değişiklikler de Swagger tanımlarına yansıtılmalıdır. Yeni veya değişen tüm uç noktalar için ilgili `@swagger` açıklamalarını güncel tutun. Swagger belgesi uygulama başlangıcında kaynak açıklamalarından üretildiği için değişikliklerden sonra sunucuyu yeniden başlatın; güncel belge `/api/swagger` ve `/api/swagger.json` üzerinden sunulur.
 ## 📡 API Endpoints
 
-All backend endpoints communicate using standard **JSON** format.
+The `/api/...` endpoints communicate using JSON. The `/users` interface renders HTML views.
 
-| Method | Endpoint | Description | Request Body (JSON) | Response Format |
+| Method | Endpoint | Description | Request Body | Response Format |
 |---|---|---|---|---|
 | `GET` | `/api/swagger` | Interaktif Swagger UI API Dokümantasyonu | *None* | `HTML UI` |
 | `GET` | `/api/swagger.json` | OpenAPI 3.0 JSON Şeması | *None* | `JSON` |
 | `GET` | `/api/health` | API health check and server status | *None* | `{"status":"ok", "message":"...", "timestamp":"..."}` |
+| `GET` | `/users` | Render the user list and create form | *None* | `HTML view` |
+| `POST` | `/users` | Create a user from the interface form | Form fields: `name`, `email`, `role`, `department` | `HTML view` (HTTP 201) |
+| `GET` | `/users/:id` | Render one user in the interface | *None* | `HTML view` |
+| `PUT` | `/users/:id` | Replace a user from the interface form | Full user form | `HTML view` |
+| `PATCH` | `/users/:id` | Partially update a user from the interface form | Changed fields | `HTML view` |
+| `DELETE` | `/users/:id` | Delete a user from the interface | *None* | `HTML view` |
 | `GET` | `/api/users` | Retrieve all registered users | *None* | `[{"id":1, "name":"...", "email":"...", ...}]` |
 | `GET` | `/api/users/:id` | Retrieve single user by ID | *None* | `{"id":2, "name":"...", "email":"...", ...}` |
 | `POST` | `/api/users` | Register a new user | `{ "name", "email", "role", "department" }` | `{"success":true, "message":"...", "user":{...}}` (HTTP 201) |
@@ -169,7 +176,7 @@ Bu proje **MVC (Model-View-Controller)** mimarisini kullanır. Her katmanın tek
 | **Controller** | `src/controllers/` | İş mantığı, validasyon, HTTP yanıt oluşturma |
 | **Router** | `src/routes/` | Yalnızca URL eşleme; ilgili controller fonksiyonunu çağırır. Swagger `@swagger` JSDoc blokları burada yer alır. |
 
-> **Not:** Express.js bir "View" katmanı gerektirmez; bu backend-only API projesinde Router, MVC'nin Route/View sorumluluğunu üstlenir.
+> **View:** `/users` arayüzü EJS ile sunucu tarafında render edilir. `/users` rotaları listeleme, detay, ekleme, tam güncelleme, kısmi güncelleme ve silme işlemlerini EJS view ile sunar. `/api/users` JSON tabanlı API olarak çalışmaya devam eder.
 
 ---
 
@@ -191,6 +198,8 @@ alumni/
 │   │       ├── users.routes.js     #   → /api/users rotaları
 │   │       └── index.js            #   → API router birleştirici
 │   └── index.js                    # Express uygulama girişi, middleware, legacy rotalar
+├── views/
+│   └── users.ejs                   #   → Kullanıcı listeleme ve oluşturma view'ı
 ├── public/
 │   ├── index.html                  # Statik ana sayfa
 │   └── about.html                  # Statik hakkımızda sayfası

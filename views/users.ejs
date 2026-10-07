@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alumni Portal | Kullanıcılar</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #172033; background: #f4f6fa; }
+    body { max-width: 1120px; margin: 36px auto; padding: 0 18px; }
+    h1, h2, h3 { margin: 0 0 12px; }
+    .panel { background: #fff; border: 1px solid #dce2ec; border-radius: 12px; padding: 20px; margin: 18px 0; }
+    form { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end; }
+    label { display: grid; gap: 6px; font-size: 14px; }
+    input, select, button { font: inherit; padding: 9px; border: 1px solid #c7cfdd; border-radius: 7px; }
+    button { background: #2348a0; color: white; border: 0; cursor: pointer; }
+    button.danger { background: #b42318; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border-bottom: 1px solid #e5e9f0; }
+    .message { color: #146c43; } .error { color: #b42318; }
+    .actions { display: grid; gap: 10px; min-width: 250px; }
+    .actions form { border-top: 1px solid #eef0f5; padding-top: 9px; }
+    a { color: #2348a0; }
+    @media (max-width: 720px) { .table-wrap { overflow-x: auto; } }
+  </style>
+</head>
+<body>
+  <h1>Kullanıcılar</h1>
+  <p>Toplam kayıt: <strong><%= total %></strong></p>
+  <% if (message) { %><p class="message"><%= message %></p><% } %>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+
+  <% if (selectedUser) { %>
+    <section class="panel">
+      <h2>Kullanıcı detayı</h2>
+      <p><strong><%= selectedUser.name %></strong> · <%= selectedUser.email %> · <%= selectedUser.roleLabel %> · <%= selectedUser.department %></p>
+      <a href="/users">Tüm kullanıcılara dön</a>
+    </section>
+  <% } %>
+
+  <section class="panel">
+    <h2>Yeni kullanıcı ekle</h2>
+    <form method="post" action="/users" class="grid">
+      <label>Ad Soyad<input name="name" value="<%= form.name || '' %>" required></label>
+      <label>E-posta<input name="email" type="email" value="<%= form.email || '' %>" required></label>
+      <label>Rol<select name="role"><% validRoles.forEach(role => { %><option value="<%= role %>" <%= form.role === role ? 'selected' : '' %>><%= role %></option><% }) %></select></label>
+      <label>Bölüm<input name="department" value="<%= form.department || '' %>"></label>
+      <button type="submit">Kullanıcı ekle</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Kayıtlı kullanıcılar</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th>Bölüm</th><th>Kayıt tarihi</th><th>İşlemler</th></tr></thead>
+        <tbody>
+          <% users.forEach(user => { %>
+            <tr>
+              <td><a href="/users/<%= user.id %>"><%= user.name %></a></td>
+              <td><%= user.email %></td><td><%= user.roleLabel %></td><td><%= user.department %></td><td><%= user.createdAtFormatted %></td>
+              <td class="actions">
+                <form data-method="PUT" action="/users/<%= user.id %>" class="grid">
+                  <h3>Tam düzenle (PUT)</h3>
+                  <label>Ad<input name="name" value="<%= user.name %>" required></label>
+                  <label>E-posta<input name="email" type="email" value="<%= user.email %>" required></label>
+                  <label>Rol<select name="role"><% validRoles.forEach(role => { %><option value="<%= role %>" <%= user.role === role ? 'selected' : '' %>><%= role %></option><% }) %></select></label>
+                  <label>Bölüm<input name="department" value="<%= user.department %>"></label>
+                  <button type="submit">Kaydet</button>
+                </form>
+                <form data-method="PATCH" action="/users/<%= user.id %>" class="grid">
+                  <label>Kısmi güncelleme (bölüm)<input name="department" value="<%= user.department %>" required></label>
+                  <button type="submit">Bölümü güncelle</button>
+                </form>
+                <form data-method="DELETE" action="/users/<%= user.id %>">
+                  <button class="danger" type="submit">Sil</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+          <% if (users.length === 0) { %><tr><td colspan="6">Henüz kullanıcı kaydı yok.</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <script>
+    document.querySelectorAll('form[data-method]').forEach(form => {
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const method = form.dataset.method;
+        if (method === 'DELETE' && !window.confirm('Bu kullanıcı silinsin mi?')) return;
+        const response = await fetch(form.action, {
+          method,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form))
+        });
+        const html = await response.text();
+        document.open();
+        document.write(html);
+        document.close();
+      });
+    });
+  </script>
+</body>
+</html>

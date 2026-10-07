@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../../controllers/user.controller');
+const ApiUserController = require('../../controllers/apiUser.controller');
 
 /**
  * @swagger
@@ -19,7 +19,7 @@ const UserController = require('../../controllers/user.controller');
  *               items:
  *                 $ref: '#/components/schemas/User'
  */
-router.get('/', UserController.getAll);
+router.get('/', ApiUserController.getAll);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.get('/', UserController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', UserController.getById);
+router.get('/:id', ApiUserController.getById);
 
 /**
  * @swagger
@@ -91,7 +91,7 @@ router.get('/:id', UserController.getById);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', UserController.create);
+router.post('/', ApiUserController.create);
 
 /**
  * @swagger
@@ -128,7 +128,7 @@ router.post('/', UserController.create);
  *       409:
  *         description: E-posta adresi başka bir kullanıcı tarafından kullanılıyor.
  */
-router.put('/:id', UserController.updateFull);
+router.put('/:id', ApiUserController.update);
 
 /**
  * @swagger
@@ -165,7 +165,7 @@ router.put('/:id', UserController.updateFull);
  *       409:
  *         description: E-posta adresi başka bir kullanıcı tarafından kullanılıyor.
  */
-router.patch('/:id', UserController.updatePartial);
+router.patch('/:id', ApiUserController.patch);
 
 /**
  * @swagger
@@ -194,6 +194,6 @@ router.patch('/:id', UserController.updatePartial);
  *       404:
  *         description: Kullanıcı bulunamadı.
  */
-router.delete('/:id', UserController.remove);
+router.delete('/:id', ApiUserController.remove);
 
 module.exports = router;

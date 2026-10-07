@@ -4,15 +4,19 @@ require('dotenv').config();
 
 const path = require('path');
 const apiRoutes = require('./routes/api');
+const userRoutes = require('./routes/users.routes');
 
 const app = express();
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Mount modular API routes (/api/health, /api/users, /api/swagger, etc.)
+// Mount web interface CRUD routes and modular API routes.
+app.use('/users', userRoutes);
 app.use('/api', apiRoutes);
 
 /**

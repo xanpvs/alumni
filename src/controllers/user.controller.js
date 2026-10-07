@@ -1,142 +1,105 @@
 /**
- * User Controller
- *
- * MVC Katmanı: Controller
- *
- * HTTP isteklerini alır → UserStore metodunu çağırır → HTTP yanıtı döner.
- * Tüm iş mantığı ve validasyon UserStore içinde yaşar; controller yalnızca
- * HTTP katmanını (status kodu, yanıt formatı) yönetir.
+ * User Controller (Interface)
+ * Web UI operations render the EJS users view. JSON API behavior lives in ApiUserController.
  */
+const { UserStore, VALID_ROLES } = require('../models/user.model');
 
-const { UserStore } = require('../models/user.model');
+const formatUser = (user) => ({
+  ...user.toJSON(),
+  roleLabel: user.role === 'Faculty' ? 'Akademisyen' :
+    user.role === 'Admin' ? 'Yönetici' : 'Mezun',
+  createdAtFormatted: new Date(user.createdAt).toLocaleDateString('tr-TR', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  })
+});
 
-/**
- * GET /api/users
- * Tüm kullanıcıları listeler.
- */
-const getAll = (req, res) => {
-  const users = UserStore.getAll();
-  res.status(200).json(users);
+const errorStatus = (message) => {
+  if (message.includes('bulunamadı')) return 404;
+  if (message.includes('kullanılıyor') || message.includes('zaten kayıtlı')) return 409;
+  return 400;
 };
 
-/**
- * GET /api/users/:id
- * ID'ye göre tekil kullanıcı döner.
- */
-const getById = (req, res) => {
-  const id = parseInt(req.params.id, 10);
+const renderUsers = (res, { status = 200, message = null, error = null, form = {}, selectedUser = null } = {}) => {
+  const users = UserStore.getAll();
+  const roleSummary = VALID_ROLES.reduce((summary, role) => {
+    summary[role] = users.filter(user => user.role === role).length;
+    return summary;
+  }, {});
 
-  if (isNaN(id)) {
-    return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
+  return res.status(status).render('users', {
+    users: users.map(formatUser),
+    total: users.length,
+    roleSummary,
+    validRoles: VALID_ROLES,
+    message,
+    error,
+    form,
+    selectedUser: selectedUser ? formatUser(selectedUser) : null
+  });
+};
+
+// CREATE
+const create = (req, res) => {
+  const result = UserStore.create(req.body || {});
+  if (!result.success) {
+    return renderUsers(res, { status: errorStatus(result.error), error: result.error, form: req.body || {} });
+  }
+  return renderUsers(res, { status: 201, message: `${result.user.name} başarıyla sisteme kaydedildi.` });
+};
+
+// READ: all
+const getAll = (req, res) => renderUsers(res);
+
+// READ: one
+const getById = (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
   const result = UserStore.getById(id);
-  if (!result.success) {
-    return res.status(404).json({ success: false, error: result.error });
-  }
-
-  res.status(200).json(result.user);
+  if (!result.success) return renderUsers(res, { status: 404, error: result.error });
+  return renderUsers(res, { selectedUser: result.user });
 };
 
-/**
- * POST /api/users
- * Yeni kullanıcı oluşturur.
- */
-const create = (req, res) => {
-  const result = UserStore.create(req.body || {});
-
-  if (!result.success) {
-    const status = result.error.includes('zaten kayıtlı') ? 409 : 400;
-    return res.status(status).json({ success: false, error: result.error });
-  }
-
-  res.status(201).json({
-    success: true,
-    message: 'Kullanıcı başarıyla kaydedildi.',
-    user: result.user,
-    ...result.user.toJSON()
-  });
-};
-
-/**
- * PUT /api/users/:id
- * Kullanıcının tüm alanlarını değiştirir.
- */
-const updateFull = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-
-  if (isNaN(id)) {
-    return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
+// UPDATE: full replacement (PUT)
+const update = (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
   const result = UserStore.update(id, req.body || {});
-
   if (!result.success) {
-    const status = result.error.includes('bulunamadı') ? 404
-                 : result.error.includes('kullanılıyor') ? 409
-                 : 400;
-    return res.status(status).json({ success: false, error: result.error });
+    return renderUsers(res, { status: errorStatus(result.error), error: result.error, form: req.body || {} });
   }
-
-  res.status(200).json({
-    success: true,
-    message: `ID'si ${id} olan kullanıcı başarıyla güncellendi (PUT).`,
-    user: result.user,
-    ...result.user.toJSON()
-  });
+  return renderUsers(res, { message: `${result.user.name} adlı kullanıcının bilgileri güncellendi.` });
 };
 
-/**
- * PATCH /api/users/:id
- * Kullanıcının yalnızca gönderilen alanlarını günceller.
- */
-const updatePartial = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-
-  if (isNaN(id)) {
-    return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
+// UPDATE: partial (PATCH)
+const patch = (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
   const result = UserStore.patch(id, req.body || {});
-
   if (!result.success) {
-    const status = result.error.includes('bulunamadı') ? 404
-                 : result.error.includes('kullanılıyor') ? 409
-                 : 400;
-    return res.status(status).json({ success: false, error: result.error });
+    return renderUsers(res, { status: errorStatus(result.error), error: result.error, form: req.body || {} });
   }
-
-  res.status(200).json({
-    success: true,
-    message: `ID'si ${id} olan kullanıcı başarıyla kısmen güncellendi (PATCH).`,
-    user: result.user,
-    ...result.user.toJSON()
-  });
+  return renderUsers(res, { message: `${result.user.name} adlı kullanıcının bilgileri kısmen güncellendi.` });
 };
 
-/**
- * DELETE /api/users/:id
- * Kullanıcıyı siler.
- */
+// DELETE
 const remove = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-
-  if (isNaN(id)) {
-    return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
   const result = UserStore.delete(id);
-
-  if (!result.success) {
-    return res.status(404).json({ success: false, error: result.error });
-  }
-
-  res.status(200).json({
-    success: true,
-    message: `ID'si ${id} olan kullanıcı (${result.user.name}) başarıyla silindi.`,
-    user: result.user,
-    ...result.user.toJSON()
-  });
+  if (!result.success) return renderUsers(res, { status: 404, error: result.error });
+  return renderUsers(res, { message: `${result.user.name} adlı kullanıcı silindi.` });
 };
 
-module.exports = { getAll, getById, create, updateFull, updatePartial, remove };
+module.exports = { create, getAll, getById, update, patch, remove };
