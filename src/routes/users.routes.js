@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/user.controller');
+const asyncHandler = require('./async-handler');
 
 /**
  * @swagger
@@ -17,7 +18,7 @@ const UserController = require('../controllers/user.controller');
  *             schema:
  *               type: string
  */
-router.get('/', UserController.getAll);
+router.get('/', asyncHandler(UserController.getAll));
 
 /**
  * @swagger
@@ -43,7 +44,7 @@ router.get('/', UserController.getAll);
  *       404:
  *         description: Kullanıcı bulunamadı.
  */
-router.get('/:id', UserController.getById);
+router.get('/:id', asyncHandler(UserController.getById));
 
 /**
  * @swagger
@@ -69,7 +70,7 @@ router.get('/:id', UserController.getById);
  *       409:
  *         description: E-posta kullanımda; form view hata mesajıyla döner.
  */
-router.post('/', UserController.create);
+router.post('/', asyncHandler(UserController.create));
 
 /**
  * @swagger
@@ -103,7 +104,7 @@ router.post('/', UserController.create);
  *       409:
  *         description: E-posta kullanımda.
  */
-router.put('/:id', UserController.update);
+router.put('/:id', asyncHandler(UserController.update));
 
 /**
  * @swagger
@@ -137,7 +138,7 @@ router.put('/:id', UserController.update);
  *       409:
  *         description: E-posta kullanımda.
  */
-router.patch('/:id', UserController.patch);
+router.patch('/:id', asyncHandler(UserController.patch));
 
 /**
  * @swagger
@@ -163,6 +164,6 @@ router.patch('/:id', UserController.patch);
  *       404:
  *         description: Kullanıcı bulunamadı.
  */
-router.delete('/:id', UserController.remove);
+router.delete('/:id', asyncHandler(UserController.remove));
 
 module.exports = router;

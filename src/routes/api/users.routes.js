@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ApiUserController = require('../../controllers/apiUser.controller');
+const asyncHandler = require('../async-handler');
 
 /**
  * @swagger
@@ -19,7 +20,7 @@ const ApiUserController = require('../../controllers/apiUser.controller');
  *               items:
  *                 $ref: '#/components/schemas/User'
  */
-router.get('/', ApiUserController.getAll);
+router.get('/', asyncHandler(ApiUserController.getAll));
 
 /**
  * @swagger
@@ -56,7 +57,7 @@ router.get('/', ApiUserController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', ApiUserController.getById);
+router.get('/:id', asyncHandler(ApiUserController.getById));
 
 /**
  * @swagger
@@ -91,7 +92,7 @@ router.get('/:id', ApiUserController.getById);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', ApiUserController.create);
+router.post('/', asyncHandler(ApiUserController.create));
 
 /**
  * @swagger
@@ -128,7 +129,7 @@ router.post('/', ApiUserController.create);
  *       409:
  *         description: E-posta adresi başka bir kullanıcı tarafından kullanılıyor.
  */
-router.put('/:id', ApiUserController.update);
+router.put('/:id', asyncHandler(ApiUserController.update));
 
 /**
  * @swagger
@@ -165,7 +166,7 @@ router.put('/:id', ApiUserController.update);
  *       409:
  *         description: E-posta adresi başka bir kullanıcı tarafından kullanılıyor.
  */
-router.patch('/:id', ApiUserController.patch);
+router.patch('/:id', asyncHandler(ApiUserController.patch));
 
 /**
  * @swagger
@@ -194,6 +195,6 @@ router.patch('/:id', ApiUserController.patch);
  *       404:
  *         description: Kullanıcı bulunamadı.
  */
-router.delete('/:id', ApiUserController.remove);
+router.delete('/:id', asyncHandler(ApiUserController.remove));
 
 module.exports = router;

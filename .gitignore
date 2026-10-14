@@ -1,6 +1,20 @@
+# Bağımlılıklar
 node_modules/
+
+# Ortam değişkenleri — gerçek değerleri asla commit'leme
+# Şablon için .env.example kullan
 .env
-.postman/
-~$*
+.env.local
+.env.*.local
+
+# OS / Editör
 .DS_Store
+Thumbs.db
+~$*
+
+# Log dosyaları
 *.log
+logs/
+
+# Postman kişisel koleksiyon ve ortam dosyaları
+.postman/

@@ -30,11 +30,11 @@ const swaggerOptions = {
     tags: [
       {
         name: 'Users',
-        description: 'Kullanıcı kayıt, listeleme, güncelleme ve silme (CRUD) işlemleri'
+        description: 'MySQL üzerinde kalıcı kullanıcı kayıt, listeleme, güncelleme ve silme (CRUD) işlemleri'
       },
       {
         name: 'Announcements',
-        description: 'Duyuru listeleme, oluşturma, güncelleme ve silme işlemleri'
+        description: 'MySQL üzerinde kalıcı duyuru listeleme, oluşturma, güncelleme ve silme işlemleri'
       },
       {
         name: 'Health',
@@ -68,7 +68,7 @@ const swaggerOptions = {
             },
             role: {
               type: 'string',
-              enum: ['Alumni', 'Faculty', 'Student', 'Admin'],
+              enum: ['Alumni', 'Faculty', 'Admin'],
               example: 'Alumni',
               description: 'Kullanıcı rolü'
             },

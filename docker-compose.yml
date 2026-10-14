@@ -2,34 +2,55 @@ services:
   backend:
     build: .
     container_name: alumni_backend
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:80"
       - "3000:3000"
     environment:
-      - PORT=80
-      - NODE_ENV=development
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=alumni_user
-      - DB_PASSWORD=alumni_password
-      - DB_NAME=alumni_portal
+      PORT: 80
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-alumni_user}
+      DB_PASSWORD: ${DB_PASSWORD:-alumni_password}
+      DB_NAME: ${DB_NAME:-alumni_portal}
     depends_on:
-      - db
+      migrator:
+        condition: service_completed_successfully
 
   db:
     image: mysql:8.0
     container_name: alumni_mysql
-    restart: always
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: alumni_portal
-      MYSQL_USER: alumni_user
-      MYSQL_PASSWORD: alumni_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-alumni_portal}
+      MYSQL_USER: ${DB_USER:-alumni_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-alumni_password}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER:-alumni_user}", "-p${DB_PASSWORD:-alumni_password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrator:
+    build: .
+    container_name: alumni_migrator
+    command: npm run migrate
+    restart: "no"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-alumni_user}
+      DB_PASSWORD: ${DB_PASSWORD:-alumni_password}
+      DB_NAME: ${DB_NAME:-alumni_portal}
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   mysql_data:

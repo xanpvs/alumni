@@ -6,6 +6,7 @@ const path = require('path');
 const apiRoutes = require('./routes/api');
 const userRoutes = require('./routes/users.routes');
 const announcementRoutes = require('./routes/announcements.routes');
+const { seedDatabase } = require('./db/seed');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -207,28 +208,37 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-const PORT = parseInt(process.env.PORT, 10) || 80;
-const ALT_PORT = 3000;
-
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://localhost (port ${PORT})`);
+app.use((err, req, res, next) => {
+  console.error('Request failed:', err.message);
+  if (req.path.startsWith('/api/')) {
+    return res.status(500).json({ success: false, error: 'İstek işlenirken sunucu hatası oluştu.' });
+  }
+  return res.status(500).send('İstek işlenirken sunucu hatası oluştu.');
 });
 
-server.on('error', (err) => {
-  console.error(`Error on port ${PORT}:`, err.message);
-});
+async function start() {
+  const seedCounts = await seedDatabase();
+  console.log(`Database ready: ${seedCounts.users} users, ${seedCounts.announcements} announcements.`);
 
-// Also listen on port 3000 if PORT is not 3000
-if (PORT !== ALT_PORT) {
-  const altServer = app.listen(ALT_PORT, '0.0.0.0', () => {
-    console.log(`Server is also running on http://localhost:${ALT_PORT}`);
+  const PORT = parseInt(process.env.PORT, 10) || 80;
+  const ALT_PORT = 3000;
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://localhost (port ${PORT})`);
   });
+  server.on('error', err => console.error(`Error on port ${PORT}:`, err.message));
 
-  altServer.on('error', (err) => {
-    // If port 3000 is already in use, don't crash
-    console.log(`Secondary port ${ALT_PORT} note: ${err.message}`);
-  });
+  if (PORT !== ALT_PORT) {
+    const altServer = app.listen(ALT_PORT, '0.0.0.0', () => {
+      console.log(`Server is also running on http://localhost:${ALT_PORT}`);
+    });
+    altServer.on('error', err => console.log(`Secondary port ${ALT_PORT} note: ${err.message}`));
+  }
 }
+
+start().catch(error => {
+  console.error('Application startup failed:', error.message);
+  process.exitCode = 1;
+});
 
 module.exports = app;
 

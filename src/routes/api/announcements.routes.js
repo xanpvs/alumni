@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Controller = require('../../controllers/apiAnnouncement.controller');
+const asyncHandler = require('../async-handler');
 
 /**
  * @swagger
@@ -32,8 +33,8 @@ const Controller = require('../../controllers/apiAnnouncement.controller');
  *       400:
  *         description: Geçersiz duyuru bilgisi
  */
-router.get('/', Controller.getAll);
-router.post('/', Controller.create);
+router.get('/', asyncHandler(Controller.getAll));
+router.post('/', asyncHandler(Controller.create));
 
 /**
  * @swagger
@@ -93,8 +94,8 @@ router.post('/', Controller.create);
  *       404:
  *         description: Duyuru bulunamadı
  */
-router.get('/:id', Controller.getById);
-router.put('/:id', Controller.update);
-router.patch('/:id', Controller.patch);
-router.delete('/:id', Controller.remove);
+router.get('/:id', asyncHandler(Controller.getById));
+router.put('/:id', asyncHandler(Controller.update));
+router.patch('/:id', asyncHandler(Controller.patch));
+router.delete('/:id', asyncHandler(Controller.remove));
 module.exports = router;

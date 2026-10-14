@@ -15,6 +15,7 @@ const { UserStore } = require('../models/user.model');
 // ─── Yardımcı: hata mesajına göre HTTP durum kodu belirler ──────────────────
 
 const errorStatus = (message) => {
+  if (message.includes('Veritabanı işlemi')) return 500;
   if (message.includes('bulunamadı'))   return 404;
   if (message.includes('kullanılıyor')) return 409;
   if (message.includes('zaten kayıtlı')) return 409;
@@ -27,8 +28,8 @@ const errorStatus = (message) => {
  * POST /api/users
  * Yeni kullanıcı kaydeder; yanıt JSON.
  */
-const create = (req, res) => {
-  const result = UserStore.create(req.body || {});
+const create = async (req, res) => {
+  const result = await UserStore.create(req.body || {});
 
   if (!result.success) {
     return res.status(errorStatus(result.error)).json({
@@ -50,8 +51,8 @@ const create = (req, res) => {
  * GET /api/users
  * Tüm kullanıcıları JSON dizisi olarak döner.
  */
-const getAll = (req, res) => {
-  return res.status(200).json(UserStore.getAll());
+const getAll = async (req, res) => {
+  return res.status(200).json(await UserStore.getAll());
 };
 
 // ─── READ (single) ───────────────────────────────────────────────────────────
@@ -60,14 +61,14 @@ const getAll = (req, res) => {
  * GET /api/users/:id
  * ID'ye göre tek kullanıcı döner; JSON.
  */
-const getById = (req, res) => {
+const getById = async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
   if (isNaN(id)) {
     return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
   }
 
-  const result = UserStore.getById(id);
+  const result = await UserStore.getById(id);
 
   if (!result.success) {
     return res.status(404).json({ success: false, error: result.error });
@@ -82,14 +83,14 @@ const getById = (req, res) => {
  * PUT /api/users/:id
  * Kullanıcının tüm alanlarını yeniden yazar.
  */
-const update = (req, res) => {
+const update = async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
   if (isNaN(id)) {
     return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
   }
 
-  const result = UserStore.update(id, req.body || {});
+  const result = await UserStore.update(id, req.body || {});
 
   if (!result.success) {
     return res.status(errorStatus(result.error)).json({
@@ -111,14 +112,14 @@ const update = (req, res) => {
  * PATCH /api/users/:id
  * Yalnızca gönderilen alanları günceller.
  */
-const patch = (req, res) => {
+const patch = async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
   if (isNaN(id)) {
     return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
   }
 
-  const result = UserStore.patch(id, req.body || {});
+  const result = await UserStore.patch(id, req.body || {});
 
   if (!result.success) {
     return res.status(errorStatus(result.error)).json({
@@ -140,14 +141,14 @@ const patch = (req, res) => {
  * DELETE /api/users/:id
  * Kullanıcıyı siler.
  */
-const remove = (req, res) => {
+const remove = async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
   if (isNaN(id)) {
     return res.status(400).json({ success: false, error: 'ID bir sayı olmalıdır.' });
   }
 
-  const result = UserStore.delete(id);
+  const result = await UserStore.delete(id);
 
   if (!result.success) {
     return res.status(404).json({ success: false, error: result.error });

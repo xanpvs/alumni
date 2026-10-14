@@ -14,13 +14,14 @@ const formatUser = (user) => ({
 });
 
 const errorStatus = (message) => {
+  if (message.includes('Veritabanı işlemi')) return 500;
   if (message.includes('bulunamadı')) return 404;
   if (message.includes('kullanılıyor') || message.includes('zaten kayıtlı')) return 409;
   return 400;
 };
 
-const renderUsers = (res, { status = 200, message = null, error = null, form = {}, selectedUser = null } = {}) => {
-  const users = UserStore.getAll();
+const renderUsers = async (res, { status = 200, message = null, error = null, form = {}, selectedUser = null } = {}) => {
+  const users = await UserStore.getAll();
   const roleSummary = VALID_ROLES.reduce((summary, role) => {
     summary[role] = users.filter(user => user.role === role).length;
     return summary;
@@ -39,8 +40,8 @@ const renderUsers = (res, { status = 200, message = null, error = null, form = {
 };
 
 // CREATE
-const create = (req, res) => {
-  const result = UserStore.create(req.body || {});
+const create = async (req, res) => {
+  const result = await UserStore.create(req.body || {});
   if (!result.success) {
     return renderUsers(res, { status: errorStatus(result.error), error: result.error, form: req.body || {} });
   }
@@ -48,28 +49,28 @@ const create = (req, res) => {
 };
 
 // READ: all
-const getAll = (req, res) => renderUsers(res);
+const getAll = async (req, res) => renderUsers(res);
 
 // READ: one
-const getById = (req, res) => {
+const getById = async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
-  const result = UserStore.getById(id);
+  const result = await UserStore.getById(id);
   if (!result.success) return renderUsers(res, { status: 404, error: result.error });
   return renderUsers(res, { selectedUser: result.user });
 };
 
 // UPDATE: full replacement (PUT)
-const update = (req, res) => {
+const update = async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
-  const result = UserStore.update(id, req.body || {});
+  const result = await UserStore.update(id, req.body || {});
   if (!result.success) {
     return renderUsers(res, { status: errorStatus(result.error), error: result.error, form: req.body || {} });
   }
@@ -77,13 +78,13 @@ const update = (req, res) => {
 };
 
 // UPDATE: partial (PATCH)
-const patch = (req, res) => {
+const patch = async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
-  const result = UserStore.patch(id, req.body || {});
+  const result = await UserStore.patch(id, req.body || {});
   if (!result.success) {
     return renderUsers(res, { status: errorStatus(result.error), error: result.error, form: req.body || {} });
   }
@@ -91,13 +92,13 @@ const patch = (req, res) => {
 };
 
 // DELETE
-const remove = (req, res) => {
+const remove = async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id <= 0) {
     return renderUsers(res, { status: 400, error: 'Geçersiz kullanıcı ID’si.' });
   }
 
-  const result = UserStore.delete(id);
+  const result = await UserStore.delete(id);
   if (!result.success) return renderUsers(res, { status: 404, error: result.error });
   return renderUsers(res, { message: `${result.user.name} adlı kullanıcı silindi.` });
 };

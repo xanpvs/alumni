@@ -5,7 +5,10 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js",
+    "db:setup": "npm run migrate && npm run seed"
   },
   "keywords": [
     "alumni",
@@ -22,6 +25,7 @@
     "dotenv": "^16.4.7",
     "ejs": "^7.0.1",
     "express": "^4.21.2",
+    "mysql2": "^3.24.6",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
   }

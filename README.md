@@ -147,13 +147,47 @@ Ensure you have the following installed on your local machine:
 - [Node.js](https://nodejs.org/) (v20 or later; required by `swagger-jsdoc`)
 - [npm](https://www.npmjs.com/)
 
+### Environment Variables
+
+Bu proje ortam değişkenleri için `.env` / `.env.example` konvansiyonunu kullanır:
+
+| Dosya | Git | Amaç |
+|---|---|---|
+| `.env.example` | ✅ Tracked | Şablon — tüm değişkenleri varsayılan/boş değerleriyle gösterir |
+| `.env` | 🚫 Ignored | Gerçek değerler — **asla commit'lenme** |
+
+```bash
+# Klonladıktan sonra ilk yapılacak iş:
+cp .env.example .env
+# Windows:
+copy .env.example .env
+```
+
+Ardından `.env` içindeki değerleri ortamınıza göre düzenleyin. Mevcut değişkenler:
+
+```ini
+PORT=80          # HTTP portu (Docker: 80, local Node.js: 3000)
+NODE_ENV=development
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=alumni_user
+DB_PASSWORD=alumni_password
+DB_NAME=alumni_portal
+MYSQL_ROOT_PASSWORD=root_password
+```
+
 ### Running with Docker (Recommended)
 ```bash
 # 1. Clone the repository
 git clone https://github.com/xanpvs/alumni.git
 cd alumni
 
-# 2. Start services using Docker Compose
+# 2. Ortam değişkenlerini hazırla
+copy .env.example .env   # Windows
+# cp .env.example .env   # macOS / Linux
+
+# 3. Start services using Docker Compose
 docker-compose up --build
 ```
 
@@ -161,9 +195,20 @@ Open [http://localhost](http://localhost) to see the portal. The backend serves 
 
 ### Running locally
 ```bash
+# 1. Ortam değişkenlerini hazırla
+copy .env.example .env   # Windows
+# cp .env.example .env   # macOS / Linux
+
+# 2. MySQL'i başlat, bağımlılıkları kur, şema ve seed'i hazırla
+docker compose up -d db
 npm ci
+npm run db:setup
+
+# 3. Uygulamayı başlat
 npm start
 ```
+
+`npm run db:setup` migration'ları uygular ve başlangıç kayıtlarını MySQL'e yükler. Uygulama açılışında da seed işlemi güvenle tekrarlanır.
 
 Then open [http://localhost:3000](http://localhost:3000). On Windows, `run.bat` starts the same Node.js server after dependencies are installed.
 
@@ -171,6 +216,7 @@ Then open [http://localhost:3000](http://localhost:3000). On Windows, `run.bat` 
 Import `postman/collections/Alumni_Portal_API.postman_collection.json` into Postman to use the included health check and user CRUD requests. Its `baseUrl` defaults to `http://localhost`; change it to `http://localhost:3000` when using the local Node.js server.
 
 ---
+
 
 ## 🏗️ Architecture — MVC
 
@@ -184,11 +230,26 @@ Bu proje **MVC (Model-View-Controller)** mimarisini kullanır. Her katmanın tek
 
 > **View:** `/users` arayüzü EJS ile sunucu tarafında render edilir. `/users` rotaları listeleme, detay, ekleme, tam güncelleme, kısmi güncelleme ve silme işlemlerini EJS view ile sunar. `/api/users` JSON tabanlı API olarak çalışmaya devam eder.
 
+### 📐 Data Design Documentation
+
+Sistemin veri mimarisi, entity alanları, validasyon kuralları, seed verisi ve MySQL Store sözleşmesi için bkz: **[DATA_DESIGN.md](./DATA_DESIGN.md)**
+
+Kısa özet:
+
+- **Depolama:** MySQL; kayıtlar sunucu yeniden başlatıldığında korunur.
+- **Başlangıç verisi:** `src/db/seed.js` belgelenmiş kayıtları factory'lerle idempotent biçimde DB'ye yükler.
+- **Factories:** `build()` DB'ye yazmadan örnek veri üretir; async `create()` ilgili Store'a kaydeder.
+- **Store sözleşmesi:** `src/db/store.interface.js` async CRUD metodlarını tanımlar; controller'lar DB ayrıntılarını bilmez.
+- **Varlıklar:** [`User`](./src/models/user.model.js) · [`Announcement`](./src/models/announcement.model.js)
+- **Store katmanı:** MySQL sorguları Store katmanında kalır; controller ve router'lar ortak CRUD sözleşmesini kullanır.
+
+> **Zorunlu kural — DDD:** Yeni kaynak eklendiğinde veya mevcut model değiştirildiğinde `DATA_DESIGN.md` belgesi de aynı iş kapsamında güncellenmelidir. Alan değişiklikleri, yeni validasyon kuralları ve Store davranış farklılıkları bu belgede tutulur.
+
 ### 📣 Site Duyuruları
 
 Sitede ana sayfanın üst menüsündeki **Duyuruları yönet** bağlantısı, duyuruların yayınlandığı ve yönetildiği `/announcements` arayüzünü açar. Bu ekrandan duyuru başlığı ve içeriği oluşturabilir; kategori ve yayınlayan bilgisi ekleyebilir; kayıtları listeleyebilir, ayrıntılarını görüntüleyebilir, düzenleyebilir ve silebilirsiniz. Örnek duyurular ilk açılışta hazır gelir.
 
-Duyurular `src/models/announcement.model.js` içindeki bellek içi depoda saklanır. Harici veritabanı kurulumu gerekmez; uygulama yeniden başlatıldığında bellekte yapılan değişiklikler silinir ve başlangıç duyuruları yeniden yüklenir. Arayüz `/announcements` rotalarını, JSON API ise `/api/announcements` rotalarını kullanır. Web controller'ı `announcement.controller.js`, API controller'ı `apiAnnouncement.controller.js` dosyasındadır. API uç noktaları Swagger dokümantasyonunda da yer alır.
+Duyurular MySQL'de saklanır ve uygulama yeniden başlatıldığında korunur. Arayüz `/announcements` rotalarını, JSON API ise `/api/announcements` rotalarını kullanır. Web controller'ı `announcement.controller.js`, API controller'ı `apiAnnouncement.controller.js` dosyasındadır. API uç noktaları Swagger dokümantasyonunda da yer alır.
 
 ---
 
@@ -196,6 +257,9 @@ Duyurular `src/models/announcement.model.js` içindeki bellek içi depoda saklan
 
 ```
 alumni/
+├── migrations/
+│   ├── 001_create_users.sql        #   → users tablosu (DATA_DESIGN.md §7)
+│   └── 002_create_announcements.sql #   → announcements tablosu
 ├── src/
 │   ├── config/
 │   │   └── swagger.js              # Swagger / OpenAPI 3.0 yapılandırması
@@ -204,6 +268,11 @@ alumni/
 │   │   └── user.controller.js      #   → Users CRUD handler'ları
 │   │   ├── announcement.controller.js # → Duyuru web arayüzü
 │   │   └── apiAnnouncement.controller.js # → Duyuru JSON API
+│   ├── db/                         # [DB] MySQL bağlantı ve migration altyapısı
+│   │   ├── connection.js           #   → mysql2/promise bağlantı havuzu
+│   │   └── migrate.js              #   → Migration runner (npm run migrate)
+│   │   ├── seed.js                 #   → Uygulama başlangıcında başlangıç verisini yükler
+│   │   └── factories/              #   → User ve Announcement örnek veri factory'leri
 │   ├── models/                     # [Model] Veri katmanı
 │   │   └── user.model.js           #   → In-memory users verisi ve CRUD fonksiyonları
 │   │   └── announcement.model.js   #   → In-memory duyuru verisi ve CRUD
@@ -224,10 +293,14 @@ alumni/
 ├── postman/
 │   └── collections/
 │       └── Alumni_Portal_API.postman_collection.json
-├── .env.example                    # Ortam değişkenleri şablonu
+├── .env.example                    # Ortam değişkenleri şablonu (tracked)
+├── .env                            # Gerçek değerler — git ignored
+├── .gitignore
+├── .dockerignore                   # Build context dışındaki gizli/üretilmiş dosyalar
 ├── Dockerfile
 ├── docker-compose.yml
 ├── package.json
+├── DATA_DESIGN.md                  # Veri mimarisi ve entity belgeleri
 └── README.md
 ```
 
@@ -239,48 +312,43 @@ alumni/
   3. `src/routes/api/<kaynak>.routes.js` — URL eşleme ve `@swagger` blokları
   4. `src/routes/api/index.js` — yeni router'ı bağla
 - **Swagger belgeleri** yalnızca `src/routes/` altında tutulur; `swagger-jsdoc` bu klasörü tarar.
-- **Veri katmanı** şu an in-memory (dizi) kullanır. İleride MySQL bağlantısına geçildiğinde yalnızca `src/models/` katmanı değişir; Controller ve Router katmanları etkilenmez.
+- **Veri katmanı** MySQL kullanır. Yeni Store'lar `src/db/store.interface.js` async CRUD sözleşmesini uygular; Controller ve Router katmanları doğrudan SQL çalıştırmaz.
 
 ---
 
-## 🧩 User Model — `src/models/user.model.js`
+## 🧩 Data Models
 
-Kullanıcı verisi ve tüm CRUD operasyonları **`src/models/user.model.js`** dosyasında kapsüllenir. Herhangi bir veritabanı bağlantısı gerektirmez; veri uygulama çalıştığı sürece bellekte (in-memory) tutulur.
+Tüm varlıkların (User, Announcement) alan tanımları, validasyon kuralları, Store sözleşmesi ve seed verisi için bkz: **[DATA_DESIGN.md](./DATA_DESIGN.md)**
 
-### Yapı
+Bu belge projenin tek yetkili veri tasarım belgesidir. Yeni model eklendiğinde veya mevcut model değiştirildiğinde `DATA_DESIGN.md` güncellenmesi zorunludur.
 
-Dosya iki ana yapıdan oluşur:
+### Kısa Başvuru — User
 
-#### `User` Sınıfı
-Tek bir kullanıcıyı temsil eden veri sınıfıdır. Yapıcı (constructor), gelen ham veriyi temizler ve normalize eder:
-- `name`, `email`, `role`, `department`, `createdAt`, `updatedAt` alanlarını yönetir.
-- `email` otomatik olarak küçük harfe çevrilir ve boşluklar temizlenir.
-- `role` belirtilmezse `'Alumni'`, `department` belirtilmezse `'Genel'` atanır.
-- `toJSON()` metodu ile temiz, seri hale getirilebilir bir nesne üretir.
+Dosya: [`src/models/user.model.js`](./src/models/user.model.js)
 
-#### `UserStore` — CRUD Operasyonları
+| Alan | Tür | Zorunlu | Varsayılan |
+|---|---|---|---|
+| `id` | integer | ✅ otomatik | Auto-increment |
+| `name` | string | ✅ | — |
+| `email` | string (tekil) | ✅ | — |
+| `role` | `Alumni` · `Faculty` · `Admin` | ❌ | `Alumni` |
+| `department` | string | ❌ | `Genel` |
+| `createdAt` | ISO 8601 | ✅ otomatik | `new Date()` |
+| `updatedAt` | ISO 8601 | ❌ | — |
 
-Her metod `{ success: boolean, error?: string, user?: User }` formatında sonuç döner; bu sayede controller'lar `try/catch` yazmak zorunda kalmaz.
+### Kısa Başvuru — Announcement
 
-| Metod | Karşılık | Açıklama |
-|---|---|---|
-| `UserStore.create(data)` | `POST /api/users` | Yeni kullanıcı oluşturur; e-posta format ve tekrar kontrolü yapar |
-| `UserStore.getAll()` | `GET /api/users` | Tüm kullanıcıları kopya dizi olarak döner |
-| `UserStore.getById(id)` | `GET /api/users/:id` | ID'ye göre kullanıcı arar; bulamazsa hata döner |
-| `UserStore.update(id, data)` | `PUT /api/users/:id` | Tüm alanları yeniden yazar (tam güncelleme) |
-| `UserStore.patch(id, data)` | `PATCH /api/users/:id` | Yalnızca gönderilen alanları günceller (kısmi güncelleme) |
-| `UserStore.delete(id)` | `DELETE /api/users/:id` | Kullanıcıyı bellekten siler |
+Dosya: [`src/models/announcement.model.js`](./src/models/announcement.model.js)
 
-### Validasyon Kuralları
-
-- `name` — zorunlu, boş olamaz
-- `email` — zorunlu, geçerli format (`isim@domain.com`), sistemde tekil olmalı
-- `role` — opsiyonel; geçerli değerler: `Alumni`, `Faculty`, `Admin` (varsayılan: `Alumni`)
-- `department` — opsiyonel (varsayılan: `Genel`)
-
-### Veritabanına Geçiş
-
-Şu an veri bellekte tutulmaktadır (sunucu yeniden başlatıldığında sıfırlanır). İleride MySQL veya başka bir veritabanına geçildiğinde **yalnızca bu dosyadaki** `UserStore` metodlarının içi değiştirilir; Controller ve Router katmanları hiç etkilenmez.
+| Alan | Tür | Zorunlu | Varsayılan |
+|---|---|---|---|
+| `id` | integer | ✅ otomatik | Auto-increment |
+| `title` | string (maks. 160 karakter) | ✅ | — |
+| `content` | string | ✅ | — |
+| `author` | string | ❌ | `Alumni Portal` |
+| `category` | string | ❌ | `Genel` |
+| `createdAt` | ISO 8601 | ✅ otomatik | `new Date()` |
+| `updatedAt` | ISO 8601 | ❌ | — |
 
 ---
 
