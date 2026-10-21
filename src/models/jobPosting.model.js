@@ -154,8 +154,53 @@ const invalidId = id => !Number.isInteger(id) || id <= 0;
 const missing = id => ({ success: false, error: `ID'si ${id} olan ilan bulunamadı.` });
 
 // ─────────────────────────────────────────────
-//  JobPostingStore
+//  In-Memory Fallback Veri Deposu (Seed Data)
 // ─────────────────────────────────────────────
+
+let memoryJobPostings = [
+  new JobPosting({
+    id: 1,
+    title: 'Backend Developer',
+    description: 'Node.js, Express ve MySQL ile REST API ve mikroservis mimarileri geliştirecek takım arkadaşı arıyoruz.',
+    company: 'TechCorp A.Ş.',
+    location: 'İstanbul / Uzaktan',
+    type: 'Full-time',
+    salaryRange: '35.000 - 55.000 TL',
+    postedBy: 2,
+    status: 'Active',
+    deadline: '2026-12-31',
+    createdAt: '2026-10-21T10:00:00.000Z'
+  }),
+  new JobPosting({
+    id: 2,
+    title: 'Yazılım Stajyeri (Yaz Dönemi)',
+    description: 'Bilgisayar veya Yazılım Mühendisliği 3./4. sınıf öğrencileri için tam zamanlı staj imkanı.',
+    company: 'StartupX Bilişim',
+    location: 'Uzaktan',
+    type: 'Internship',
+    salaryRange: '15.000 - 20.000 TL',
+    postedBy: 1,
+    status: 'Active',
+    deadline: '2026-06-30',
+    createdAt: '2026-10-21T10:30:00.000Z'
+  }),
+  new JobPosting({
+    id: 3,
+    title: 'Yapay Zeka ve Veri Araştırmacısı',
+    description: 'Büyük dil modelleri ve veri analitiği üzerine akademik ve endüstriyel Ar-Ge projeleri.',
+    company: 'DeepLab AI Labs',
+    location: 'Ankara / Hibrit',
+    type: 'Contract',
+    salaryRange: '50.000 - 75.000 TL',
+    postedBy: 2,
+    status: 'Active',
+    deadline: '2026-11-15',
+    createdAt: '2026-10-21T11:00:00.000Z'
+  })
+];
+
+const nextJobId = () => memoryJobPostings.length > 0 ? Math.max(...memoryJobPostings.map(j => j.id)) + 1 : 1;
+const isConnError = err => err && (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.name === 'AggregateError');
 
 const JobPostingStore = {
   async create(data = {}) {
@@ -163,49 +208,88 @@ const JobPostingStore = {
     if (error) return { success: false, error };
 
     const { title, description, company, location, type, salary_range, posted_by, status, deadline } = data;
-    const [result] = await pool.execute(
-      `INSERT INTO job_postings (title, description, company, location, type, salary_range, posted_by, status, deadline)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        title.trim(),
-        description.trim(),
-        company.trim(),
-        location || 'Uzaktan',
-        type || 'Full-time',
-        salary_range || null,
-        posted_by ?? null,
-        status || 'Active',
-        deadline || null,
-      ]
-    );
-    const [rows] = await pool.execute('SELECT * FROM job_postings WHERE id = ?', [result.insertId]);
-    return { success: true, jobPosting: mapJobPosting(rows[0]) };
+    try {
+      const [result] = await pool.execute(
+        `INSERT INTO job_postings (title, description, company, location, type, salary_range, posted_by, status, deadline)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          title.trim(),
+          description.trim(),
+          company.trim(),
+          location || 'Uzaktan',
+          type || 'Full-time',
+          salary_range || null,
+          posted_by ?? null,
+          status || 'Active',
+          deadline || null,
+        ]
+      );
+      const [rows] = await pool.execute('SELECT * FROM job_postings WHERE id = ?', [result.insertId]);
+      return { success: true, jobPosting: mapJobPosting(rows[0]) };
+    } catch (err) {
+      if (isConnError(err)) {
+        const item = new JobPosting({
+          id: nextJobId(),
+          title: title.trim(),
+          description: description.trim(),
+          company: company.trim(),
+          location: location || 'Uzaktan',
+          type: type || 'Full-time',
+          salaryRange: salary_range || null,
+          postedBy: posted_by ?? null,
+          status: status || 'Active',
+          deadline: deadline || null,
+        });
+        memoryJobPostings.unshift(item);
+        return { success: true, jobPosting: item };
+      }
+      throw err;
+    }
   },
 
   async getAll(filters = {}) {
-    let query = 'SELECT * FROM job_postings';
-    const params = [];
-    const conditions = [];
+    try {
+      let query = 'SELECT * FROM job_postings';
+      const params = [];
+      const conditions = [];
 
-    if (filters.status && VALID_STATUSES.includes(filters.status)) {
-      conditions.push('status = ?');
-      params.push(filters.status);
-    }
-    if (filters.type && VALID_TYPES.includes(filters.type)) {
-      conditions.push('type = ?');
-      params.push(filters.type);
-    }
-    if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
-    query += ' ORDER BY id DESC';
+      if (filters.status && VALID_STATUSES.includes(filters.status)) {
+        conditions.push('status = ?');
+        params.push(filters.status);
+      }
+      if (filters.type && VALID_TYPES.includes(filters.type)) {
+        conditions.push('type = ?');
+        params.push(filters.type);
+      }
+      if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
+      query += ' ORDER BY id DESC';
 
-    const [rows] = await pool.execute(query, params);
-    return rows.map(mapJobPosting);
+      const [rows] = await pool.execute(query, params);
+      return rows.map(mapJobPosting);
+    } catch (err) {
+      if (isConnError(err)) {
+        let list = [...memoryJobPostings];
+        if (filters.status) list = list.filter(j => j.status === filters.status);
+        if (filters.type)   list = list.filter(j => j.type === filters.type);
+        if (filters.posted_by) list = list.filter(j => j.postedBy === Number(filters.posted_by));
+        return list;
+      }
+      throw err;
+    }
   },
 
   async getById(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const [rows] = await pool.execute('SELECT * FROM job_postings WHERE id = ?', [id]);
-    return rows.length ? { success: true, jobPosting: mapJobPosting(rows[0]) } : missing(id);
+    try {
+      const [rows] = await pool.execute('SELECT * FROM job_postings WHERE id = ?', [id]);
+      return rows.length ? { success: true, jobPosting: mapJobPosting(rows[0]) } : missing(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const item = memoryJobPostings.find(j => j.id === id);
+        return item ? { success: true, jobPosting: item } : missing(id);
+      }
+      throw err;
+    }
   },
 
   async update(id, data = {}) {
@@ -213,29 +297,53 @@ const JobPostingStore = {
     const error = validateRequired(data);
     if (error) return { success: false, error };
 
-    const current = await this.getById(id);
-    if (!current.success) return current;
-
     const { title, description, company, location, type, salary_range, posted_by, status, deadline } = data;
-    await pool.execute(
-      `UPDATE job_postings
-       SET title = ?, description = ?, company = ?, location = ?, type = ?,
-           salary_range = ?, posted_by = ?, status = ?, deadline = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`,
-      [
-        title.trim(),
-        description.trim(),
-        company.trim(),
-        location || 'Uzaktan',
-        type || 'Full-time',
-        salary_range ?? null,
-        posted_by ?? null,
-        status || 'Active',
-        deadline ?? null,
-        id,
-      ]
-    );
-    return this.getById(id);
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
+
+      await pool.execute(
+        `UPDATE job_postings
+         SET title = ?, description = ?, company = ?, location = ?, type = ?,
+             salary_range = ?, posted_by = ?, status = ?, deadline = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [
+          title.trim(),
+          description.trim(),
+          company.trim(),
+          location || 'Uzaktan',
+          type || 'Full-time',
+          salary_range ?? null,
+          posted_by ?? null,
+          status || 'Active',
+          deadline ?? null,
+          id,
+        ]
+      );
+      return this.getById(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryJobPostings.findIndex(j => j.id === id);
+        if (index === -1) return missing(id);
+        const updated = new JobPosting({
+          id,
+          title: title.trim(),
+          description: description.trim(),
+          company: company.trim(),
+          location: location || 'Uzaktan',
+          type: type || 'Full-time',
+          salaryRange: salary_range ?? memoryJobPostings[index].salaryRange,
+          postedBy: posted_by ?? memoryJobPostings[index].postedBy,
+          status: status || memoryJobPostings[index].status,
+          deadline: deadline ?? memoryJobPostings[index].deadline,
+          createdAt: memoryJobPostings[index].createdAt,
+          updatedAt: new Date().toISOString(),
+        });
+        memoryJobPostings[index] = updated;
+        return { success: true, jobPosting: updated };
+      }
+      throw err;
+    }
   },
 
   async patch(id, data = {}) {
@@ -253,7 +361,6 @@ const JobPostingStore = {
     const current = await this.getById(id);
     if (!current.success) return current;
 
-    // camelCase → snake_case normalizasyonu
     const normalized = { ...data };
     if (data.salaryRange !== undefined) { normalized.salary_range = data.salaryRange; delete normalized.salaryRange; }
     if (data.postedBy !== undefined)    { normalized.posted_by = data.postedBy;       delete normalized.postedBy; }
@@ -275,10 +382,20 @@ const JobPostingStore = {
 
   async delete(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const current = await this.getById(id);
-    if (!current.success) return current;
-    await pool.execute('DELETE FROM job_postings WHERE id = ?', [id]);
-    return current;
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
+      await pool.execute('DELETE FROM job_postings WHERE id = ?', [id]);
+      return current;
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryJobPostings.findIndex(j => j.id === id);
+        if (index === -1) return missing(id);
+        const [deleted] = memoryJobPostings.splice(index, 1);
+        return { success: true, jobPosting: deleted };
+      }
+      throw err;
+    }
   },
 };
 

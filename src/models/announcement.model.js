@@ -29,40 +29,113 @@ const mapAnnouncement = row => new Announcement({
 });
 const missing = id => ({ success: false, error: `ID'si ${id} olan duyuru bulunamadı.` });
 
+// ─────────────────────────────────────────────
+//  In-Memory Fallback Veri Deposu
+// ─────────────────────────────────────────────
+
+let memoryAnnouncements = [
+  new Announcement({
+    id: 1,
+    title: 'Alumni Portal’a Hoş Geldiniz',
+    content: 'Mezunlar ve akademisyenler için duyuruları buradan takip edebilirsiniz.',
+    author: 'Alumni Portal',
+    category: 'Genel',
+    createdAt: '2026-09-20T10:00:00.000Z'
+  }),
+  new Announcement({
+    id: 2,
+    title: 'Mezunlar Buluşması',
+    content: 'Yeni etkinlik ve buluşma duyuruları bu alanda paylaşılacaktır.',
+    author: 'Alumni Portal',
+    category: 'Etkinlik',
+    createdAt: '2026-09-21T11:30:00.000Z'
+  })
+];
+
+const nextAnnouncementId = () => memoryAnnouncements.length > 0 ? Math.max(...memoryAnnouncements.map(a => a.id)) + 1 : 1;
+const isConnError = err => err && (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.name === 'AggregateError');
+
 const AnnouncementStore = {
   async create(data = {}) {
     const error = validate(data);
     if (error) return { success: false, error };
-    const [result] = await pool.execute(
-      'INSERT INTO announcements (title, content, author, category) VALUES (?, ?, ?, ?)',
-      [data.title.trim(), data.content.trim(), data.author || 'Alumni Portal', data.category || 'Genel']
-    );
-    const [rows] = await pool.execute('SELECT * FROM announcements WHERE id = ?', [result.insertId]);
-    return { success: true, announcement: mapAnnouncement(rows[0]) };
+    try {
+      const [result] = await pool.execute(
+        'INSERT INTO announcements (title, content, author, category) VALUES (?, ?, ?, ?)',
+        [data.title.trim(), data.content.trim(), data.author || 'Alumni Portal', data.category || 'Genel']
+      );
+      const [rows] = await pool.execute('SELECT * FROM announcements WHERE id = ?', [result.insertId]);
+      return { success: true, announcement: mapAnnouncement(rows[0]) };
+    } catch (err) {
+      if (isConnError(err)) {
+        const item = new Announcement({
+          id: nextAnnouncementId(),
+          title: data.title,
+          content: data.content,
+          author: data.author,
+          category: data.category
+        });
+        memoryAnnouncements.unshift(item);
+        return { success: true, announcement: item };
+      }
+      throw err;
+    }
   },
 
   async getAll() {
-    const [rows] = await pool.execute('SELECT * FROM announcements ORDER BY id DESC');
-    return rows.map(mapAnnouncement);
+    try {
+      const [rows] = await pool.execute('SELECT * FROM announcements ORDER BY id DESC');
+      return rows.map(mapAnnouncement);
+    } catch (err) {
+      if (isConnError(err)) return [...memoryAnnouncements];
+      throw err;
+    }
   },
 
   async getById(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const [rows] = await pool.execute('SELECT * FROM announcements WHERE id = ?', [id]);
-    return rows.length ? { success: true, announcement: mapAnnouncement(rows[0]) } : missing(id);
+    try {
+      const [rows] = await pool.execute('SELECT * FROM announcements WHERE id = ?', [id]);
+      return rows.length ? { success: true, announcement: mapAnnouncement(rows[0]) } : missing(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const item = memoryAnnouncements.find(a => a.id === id);
+        return item ? { success: true, announcement: item } : missing(id);
+      }
+      throw err;
+    }
   },
 
   async update(id, data = {}) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
     const error = validate(data);
     if (error) return { success: false, error };
-    const current = await this.getById(id);
-    if (!current.success) return current;
-    await pool.execute(
-      'UPDATE announcements SET title = ?, content = ?, author = ?, category = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [data.title.trim(), data.content.trim(), data.author || 'Alumni Portal', data.category || 'Genel', id]
-    );
-    return this.getById(id);
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
+      await pool.execute(
+        'UPDATE announcements SET title = ?, content = ?, author = ?, category = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [data.title.trim(), data.content.trim(), data.author || 'Alumni Portal', data.category || 'Genel', id]
+      );
+      return this.getById(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryAnnouncements.findIndex(a => a.id === id);
+        if (index === -1) return missing(id);
+        const updated = new Announcement({
+          id,
+          title: data.title,
+          content: data.content,
+          author: data.author || memoryAnnouncements[index].author,
+          category: data.category || memoryAnnouncements[index].category,
+          createdAt: memoryAnnouncements[index].createdAt,
+          updatedAt: new Date().toISOString()
+        });
+        memoryAnnouncements[index] = updated;
+        return { success: true, announcement: updated };
+      }
+      throw err;
+    }
   },
 
   async patch(id, data = {}) {
@@ -77,10 +150,20 @@ const AnnouncementStore = {
 
   async delete(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const current = await this.getById(id);
-    if (!current.success) return current;
-    await pool.execute('DELETE FROM announcements WHERE id = ?', [id]);
-    return current;
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
+      await pool.execute('DELETE FROM announcements WHERE id = ?', [id]);
+      return current;
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryAnnouncements.findIndex(a => a.id === id);
+        if (index === -1) return missing(id);
+        const [deleted] = memoryAnnouncements.splice(index, 1);
+        return { success: true, announcement: deleted };
+      }
+      throw err;
+    }
   },
 };
 

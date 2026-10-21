@@ -100,8 +100,30 @@ const invalidId = id => !Number.isInteger(id) || id <= 0;
 const missing = id => ({ success: false, error: `ID'si ${id} olan başvuru bulunamadı.` });
 
 // ─────────────────────────────────────────────
-//  ApplicationStore
+//  In-Memory Fallback Veri Deposu (Seed Data)
 // ─────────────────────────────────────────────
+
+let memoryApplications = [
+  new Application({
+    id: 1,
+    jobPostingId: 1,
+    applicantId: 3,
+    coverLetter: 'Backend pozisyonuna başvurmak istiyorum.',
+    status: 'Pending',
+    appliedAt: '2026-10-21T11:15:00.000Z'
+  }),
+  new Application({
+    id: 2,
+    jobPostingId: 2,
+    applicantId: 1,
+    coverLetter: 'Staj programınız hakkında bilgi almak istiyorum.',
+    status: 'Reviewed',
+    appliedAt: '2026-10-21T11:45:00.000Z'
+  })
+];
+
+const nextAppId = () => memoryApplications.length > 0 ? Math.max(...memoryApplications.map(a => a.id)) + 1 : 1;
+const isConnError = err => err && (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.name === 'AggregateError');
 
 const ApplicationStore = {
   /**
@@ -113,15 +135,32 @@ const ApplicationStore = {
     if (error) return { success: false, error };
 
     const { job_posting_id, applicant_id, cover_letter, status } = data;
+    const jId = Number(job_posting_id);
+    const aId = Number(applicant_id);
+
     try {
       const [result] = await pool.execute(
         `INSERT INTO applications (job_posting_id, applicant_id, cover_letter, status)
          VALUES (?, ?, ?, ?)`,
-        [Number(job_posting_id), Number(applicant_id), cover_letter || null, status || 'Pending']
+        [jId, aId, cover_letter || null, status || 'Pending']
       );
       const [rows] = await pool.execute('SELECT * FROM applications WHERE id = ?', [result.insertId]);
       return { success: true, application: mapApplication(rows[0]) };
     } catch (err) {
+      if (isConnError(err)) {
+        if (memoryApplications.some(a => a.jobPostingId === jId && a.applicantId === aId)) {
+          return { success: false, error: 'Bu kullanıcı bu ilana zaten başvurmuş.', code: 'DUPLICATE' };
+        }
+        const item = new Application({
+          id: nextAppId(),
+          jobPostingId: jId,
+          applicantId: aId,
+          coverLetter: cover_letter || null,
+          status: status || 'Pending'
+        });
+        memoryApplications.unshift(item);
+        return { success: true, application: item };
+      }
       if (err.code === 'ER_DUP_ENTRY')
         return { success: false, error: 'Bu kullanıcı bu ilana zaten başvurmuş.', code: 'DUPLICATE' };
       if (err.code === 'ER_NO_REFERENCED_ROW_2')
@@ -137,52 +176,86 @@ const ApplicationStore = {
    * filters.status       → durum filtresi
    */
   async getAll(filters = {}) {
-    let query = 'SELECT * FROM applications';
-    const params = [];
-    const conditions = [];
+    try {
+      let query = 'SELECT * FROM applications';
+      const params = [];
+      const conditions = [];
 
-    if (filters.jobPostingId) {
-      conditions.push('job_posting_id = ?');
-      params.push(Number(filters.jobPostingId));
-    }
-    if (filters.applicantId) {
-      conditions.push('applicant_id = ?');
-      params.push(Number(filters.applicantId));
-    }
-    if (filters.status && VALID_STATUSES.includes(filters.status)) {
-      conditions.push('status = ?');
-      params.push(filters.status);
-    }
-    if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
-    query += ' ORDER BY applied_at DESC';
+      if (filters.jobPostingId) {
+        conditions.push('job_posting_id = ?');
+        params.push(Number(filters.jobPostingId));
+      }
+      if (filters.applicantId) {
+        conditions.push('applicant_id = ?');
+        params.push(Number(filters.applicantId));
+      }
+      if (filters.status && VALID_STATUSES.includes(filters.status)) {
+        conditions.push('status = ?');
+        params.push(filters.status);
+      }
+      if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
+      query += ' ORDER BY applied_at DESC';
 
-    const [rows] = await pool.execute(query, params);
-    return rows.map(mapApplication);
+      const [rows] = await pool.execute(query, params);
+      return rows.map(mapApplication);
+    } catch (err) {
+      if (isConnError(err)) {
+        let list = [...memoryApplications];
+        if (filters.jobPostingId) list = list.filter(a => a.jobPostingId === Number(filters.jobPostingId));
+        if (filters.applicantId)  list = list.filter(a => a.applicantId === Number(filters.applicantId));
+        if (filters.status)       list = list.filter(a => a.status === filters.status);
+        return list;
+      }
+      throw err;
+    }
   },
 
   async getById(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const [rows] = await pool.execute('SELECT * FROM applications WHERE id = ?', [id]);
-    return rows.length ? { success: true, application: mapApplication(rows[0]) } : missing(id);
+    try {
+      const [rows] = await pool.execute('SELECT * FROM applications WHERE id = ?', [id]);
+      return rows.length ? { success: true, application: mapApplication(rows[0]) } : missing(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const item = memoryApplications.find(a => a.id === id);
+        return item ? { success: true, application: item } : missing(id);
+      }
+      throw err;
+    }
   },
 
-  /**
-   * PUT: sadece status ve cover_letter güncellenebilir
-   * (job_posting_id ve applicant_id değiştirilemez — yeni başvuru açılmalı)
-   */
   async update(id, data = {}) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
     if (data.status !== undefined && !VALID_STATUSES.includes(data.status))
       return { success: false, error: `Geçersiz durum. İzin verilenler: ${VALID_STATUSES.join(', ')}.` };
 
-    const current = await this.getById(id);
-    if (!current.success) return current;
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
 
-    await pool.execute(
-      `UPDATE applications SET cover_letter = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-      [data.cover_letter ?? current.application.coverLetter, data.status || current.application.status, id]
-    );
-    return this.getById(id);
+      await pool.execute(
+        `UPDATE applications SET cover_letter = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        [data.cover_letter ?? current.application.coverLetter, data.status || current.application.status, id]
+      );
+      return this.getById(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryApplications.findIndex(a => a.id === id);
+        if (index === -1) return missing(id);
+        const updated = new Application({
+          id,
+          jobPostingId: memoryApplications[index].jobPostingId,
+          applicantId:  memoryApplications[index].applicantId,
+          coverLetter:  data.cover_letter ?? memoryApplications[index].coverLetter,
+          status:       data.status || memoryApplications[index].status,
+          appliedAt:    memoryApplications[index].appliedAt,
+          updatedAt:    new Date().toISOString()
+        });
+        memoryApplications[index] = updated;
+        return { success: true, application: updated };
+      }
+      throw err;
+    }
   },
 
   async patch(id, data = {}) {
@@ -201,10 +274,20 @@ const ApplicationStore = {
 
   async delete(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const current = await this.getById(id);
-    if (!current.success) return current;
-    await pool.execute('DELETE FROM applications WHERE id = ?', [id]);
-    return current;
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
+      await pool.execute('DELETE FROM applications WHERE id = ?', [id]);
+      return current;
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryApplications.findIndex(a => a.id === id);
+        if (index === -1) return missing(id);
+        const [deleted] = memoryApplications.splice(index, 1);
+        return { success: true, application: deleted };
+      }
+      throw err;
+    }
   },
 };
 

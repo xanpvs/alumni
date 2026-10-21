@@ -134,6 +134,40 @@ const validatePartial = ({ name, email, role }) => {
 const dbError = error => error.code === 'ER_DUP_ENTRY'
   ? { success: false, error: 'Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor.', code: 'DUPLICATE' }
   : { success: false, error: 'Veritabanı işlemi başarısız oldu.', code: 'DB_ERROR' };
+// ─────────────────────────────────────────────
+//  In-Memory Fallback Veri Deposu (Seed Data)
+// ─────────────────────────────────────────────
+
+let memoryUsers = [
+  new User({
+    id: 1,
+    name: 'Berat Çelik',
+    email: 'berat@alumni.edu',
+    role: 'Alumni',
+    department: 'Bilgisayar Mühendisliği',
+    createdAt: '2026-09-20T10:00:00.000Z'
+  }),
+  new User({
+    id: 2,
+    name: 'Prof. Dr. Ayşe Yılmaz',
+    email: 'ayse.yilmaz@faculty.edu',
+    role: 'Faculty',
+    department: 'Yazılım Mühendisliği',
+    createdAt: '2026-09-21T11:30:00.000Z'
+  }),
+  new User({
+    id: 3,
+    name: 'Emre Kaya',
+    email: 'emre.kaya@alumni.edu',
+    role: 'Alumni',
+    department: 'Elektrik-Elektronik Mühendisliği',
+    createdAt: '2026-09-22T14:15:00.000Z'
+  })
+];
+
+const nextUserId = () => memoryUsers.length > 0 ? Math.max(...memoryUsers.map(u => u.id)) + 1 : 1;
+const isConnError = err => err && (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.name === 'AggregateError');
+
 const mapUser = row => row ? new User({
   id: row.id, name: row.name, email: row.email, role: row.role, department: row.department,
   createdAt: row.created_at ? new Date(row.created_at).toISOString() : undefined,
@@ -147,25 +181,50 @@ const UserStore = {
     const { name, email, role, department } = data;
     const error = validateRequired({ name, email, role });
     if (error) return { success: false, error };
+
+    const cleanEmail = email.trim().toLowerCase();
     try {
       const [result] = await pool.execute(
         'INSERT INTO users (name, email, role, department) VALUES (?, ?, ?, ?)',
-        [name.trim(), email.trim().toLowerCase(), role || 'Alumni', department || 'Genel']
+        [name.trim(), cleanEmail, role || 'Alumni', department || 'Genel']
       );
       const [rows] = await pool.execute('SELECT * FROM users WHERE id = ?', [result.insertId]);
       return { success: true, user: mapUser(rows[0]) };
-    } catch (err) { return dbError(err); }
+    } catch (err) {
+      if (isConnError(err)) {
+        if (memoryUsers.some(u => u.email === cleanEmail)) {
+          return { success: false, error: `Bu e-posta adresi (${cleanEmail}) zaten kayıtlı.` };
+        }
+        const user = new User({ id: nextUserId(), name, email: cleanEmail, role, department });
+        memoryUsers.push(user);
+        return { success: true, user };
+      }
+      return dbError(err);
+    }
   },
 
   async getAll() {
-    const [rows] = await pool.execute('SELECT * FROM users ORDER BY id');
-    return rows.map(mapUser);
+    try {
+      const [rows] = await pool.execute('SELECT * FROM users ORDER BY id');
+      return rows.map(mapUser);
+    } catch (err) {
+      if (isConnError(err)) return [...memoryUsers];
+      throw err;
+    }
   },
 
   async getById(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const [rows] = await pool.execute('SELECT * FROM users WHERE id = ?', [id]);
-    return rows.length ? { success: true, user: mapUser(rows[0]) } : missing(id);
+    try {
+      const [rows] = await pool.execute('SELECT * FROM users WHERE id = ?', [id]);
+      return rows.length ? { success: true, user: mapUser(rows[0]) } : missing(id);
+    } catch (err) {
+      if (isConnError(err)) {
+        const u = memoryUsers.find(item => item.id === id);
+        return u ? { success: true, user: u } : missing(id);
+      }
+      throw err;
+    }
   },
 
   async update(id, data = {}) {
@@ -173,15 +232,33 @@ const UserStore = {
     const { name, email, role, department } = data;
     const error = validateRequired({ name, email, role });
     if (error) return { success: false, error };
-    const current = await this.getById(id);
-    if (!current.success) return current;
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
       await pool.execute(
         'UPDATE users SET name = ?, email = ?, role = ?, department = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-        [name.trim(), email.trim().toLowerCase(), role || 'Alumni', department || 'Genel', id]
+        [name.trim(), cleanEmail, role || 'Alumni', department || 'Genel', id]
       );
       return this.getById(id);
-    } catch (err) { return dbError(err); }
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryUsers.findIndex(u => u.id === id);
+        if (index === -1) return missing(id);
+        if (memoryUsers.some(u => u.email === cleanEmail && u.id !== id)) {
+          return { success: false, error: `Bu e-posta adresi (${cleanEmail}) başka bir kullanıcı tarafından kullanılıyor.` };
+        }
+        const updated = new User({
+          id, name, email: cleanEmail, role, department,
+          createdAt: memoryUsers[index].createdAt,
+          updatedAt: new Date().toISOString()
+        });
+        memoryUsers[index] = updated;
+        return { success: true, user: updated };
+      }
+      return dbError(err);
+    }
   },
 
   async patch(id, data = {}) {
@@ -199,10 +276,20 @@ const UserStore = {
 
   async delete(id) {
     if (invalidId(id)) return { success: false, error: 'ID pozitif bir tam sayı olmalıdır.' };
-    const current = await this.getById(id);
-    if (!current.success) return current;
-    await pool.execute('DELETE FROM users WHERE id = ?', [id]);
-    return current;
+    try {
+      const current = await this.getById(id);
+      if (!current.success) return current;
+      await pool.execute('DELETE FROM users WHERE id = ?', [id]);
+      return current;
+    } catch (err) {
+      if (isConnError(err)) {
+        const index = memoryUsers.findIndex(u => u.id === id);
+        if (index === -1) return missing(id);
+        const [deleted] = memoryUsers.splice(index, 1);
+        return { success: true, user: deleted };
+      }
+      throw err;
+    }
   },
 };
 assertStoreInterface(UserStore, 'UserStore');
