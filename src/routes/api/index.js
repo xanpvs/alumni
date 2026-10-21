@@ -3,9 +3,11 @@ const router = express.Router();
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('../../config/swagger');
 
-const healthRoutes = require('./health.routes');
-const usersRoutes = require('./users.routes');
+const healthRoutes        = require('./health.routes');
+const usersRoutes         = require('./users.routes');
 const announcementsRoutes = require('./announcements.routes');
+const jobPostingsRoutes   = require('./jobPostings.routes');
+const applicationsRoutes  = require('./applications.routes');
 
 /**
  * @swagger
@@ -102,14 +104,40 @@ router.get('/', (req, res) => {
       announcement_detail: 'GET /api/announcements/:id',
       announcement_update: 'PUT /api/announcements/:id',
       announcement_patch: 'PATCH /api/announcements/:id',
-      announcement_delete: 'DELETE /api/announcements/:id'
+      announcement_delete: 'DELETE /api/announcements/:id',
+      job_postings_list: 'GET /api/job-postings',
+      job_posting_create: 'POST /api/job-postings',
+      job_posting_detail: 'GET /api/job-postings/:id',
+      job_posting_update: 'PUT /api/job-postings/:id',
+      job_posting_patch: 'PATCH /api/job-postings/:id',
+      job_posting_delete: 'DELETE /api/job-postings/:id',
+      user_job_postings: 'GET /api/users/:userId/job-postings',
+      applications_list: 'GET /api/applications',
+      application_create: 'POST /api/applications',
+      application_detail: 'GET /api/applications/:id',
+      application_update: 'PUT /api/applications/:id',
+      application_patch: 'PATCH /api/applications/:id',
+      application_delete: 'DELETE /api/applications/:id',
+      job_posting_applications: 'GET /api/job-postings/:jobPostingId/applications',
+      user_applications: 'GET /api/users/:userId/applications'
     }
   });
 });
 
 // Sub-routes mounting
-router.use('/health', healthRoutes);
-router.use('/users', usersRoutes);
+router.use('/health',        healthRoutes);
+router.use('/users',         usersRoutes);
 router.use('/announcements', announcementsRoutes);
+
+// Direct routes
+router.use('/job-postings',  jobPostingsRoutes);
+router.use('/applications',  applicationsRoutes);
+
+// Nested routes — job-postings/:jobPostingId/applications
+router.use('/job-postings/:jobPostingId/applications', applicationsRoutes);
+
+// Nested routes — users/:userId/job-postings  &  users/:userId/applications
+router.use('/users/:userId/job-postings',  jobPostingsRoutes);
+router.use('/users/:userId/applications',  applicationsRoutes);
 
 module.exports = router;

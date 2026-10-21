@@ -13,6 +13,8 @@
 3. [Varlıklar (Entities)](#3-varlıklar-entities)
    - 3.1 [User](#31-user)
    - 3.2 [Announcement](#32-announcement)
+   - 3.3 [JobPosting](#33-jobposting)
+   - 3.4 [Application](#34-application)
 4. [Validasyon Kuralları](#4-validasyon-kuralları)
 5. [Seed (Başlangıç) Verisi](#5-seed-başlangıç-verisi)
 6. [Veri Akışı](#6-veri-akışı)
@@ -164,6 +166,115 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 
 ---
 
+### 3.3 JobPosting
+
+**Dosya:** [`src/models/jobPosting.model.js`](./src/models/jobPosting.model.js)
+
+İş ilanlarını temsil eder. Alumni ve akademisyenler iş fırsatları, staj pozisyonları ve araştırma işbirlikleri ilan edebilir.
+
+#### Alan Tanımları
+
+| Alan | Tür | Zorunlu | Varsayılan | Açıklama |
+|---|---|---|---|---|
+| `id` | `integer` | ✅ (otomatik) | Auto-increment | Benzersiz pozitif tam sayı kimlik |
+| `title` | `string` | ✅ | — | İlan başlığı; maks. 255 karakter |
+| `description` | `string` | ✅ | — | İş tanımı ve gereksinimler |
+| `company` | `string` | ✅ | — | Şirket veya kurum adı |
+| `location` | `string` | ❌ | `Uzaktan` | Çalışma konumu (ör. `İstanbul`, `Uzaktan`, `Hibrit`) |
+| `type` | `enum` | ❌ | `Full-time` | İlan türü: `Full-time` · `Part-time` · `Internship` · `Contract` |
+| `salary_range` | `string` | ❌ | `NULL` | Maaş aralığı (ör. `15.000 - 20.000 TL`) |
+| `posted_by` | `integer` (FK) | ❌ | `NULL` | İlanı oluşturan kullanıcının `users.id`'si |
+| `status` | `enum` | ❌ | `Active` | İlan durumu: `Active` · `Closed` |
+| `deadline` | `DATE` | ❌ | `NULL` | Başvuru son tarihi |
+| `created_at` | `ISO 8601` | ✅ (otomatik) | `new Date()` | Kaydın oluşturulma zamanı |
+| `updated_at` | `ISO 8601` | ❌ | — | Son güncelleme zamanı; yalnızca PUT/PATCH sonrası set edilir |
+
+> **Foreign Key:** `posted_by` → `users(id)` ilişkisi `ON DELETE SET NULL` ile tanımlanır; kullanıcı silindiğinde ilan korunur, `posted_by` alanı `NULL` olur.
+
+#### JSON Örneği
+
+```json
+{
+  "id": 1,
+  "title": "Backend Developer",
+  "description": "Node.js ve Express ile REST API geliştirme deneyimi aranıyor.",
+  "company": "TechCorp A.Ş.",
+  "location": "İstanbul / Uzaktan",
+  "type": "Full-time",
+  "salary_range": "25.000 - 35.000 TL",
+  "posted_by": 2,
+  "status": "Active",
+  "deadline": "2026-12-31",
+  "created_at": "2026-10-21T10:00:00.000Z"
+}
+```
+
+#### CRUD Operasyonları
+
+| Metod | HTTP | Açıklama |
+|---|---|---|
+| `JobPostingStore.create(data)` | `POST /api/job-postings` | Yeni ilan oluşturur; `title`, `description`, `company` zorunludur |
+| `JobPostingStore.getAll()` | `GET /api/job-postings` | Tüm ilanları döner; opsiyonel `status` ve `type` filtresi desteklenir |
+| `JobPostingStore.getById(id)` | `GET /api/job-postings/:id` | ID ile tek ilan; bulunamazsa `success: false` |
+| `JobPostingStore.update(id, data)` | `PUT /api/job-postings/:id` | Tüm alanları yeniden yazar; `created_at` korunur, `updated_at` güncellenir |
+| `JobPostingStore.patch(id, data)` | `PATCH /api/job-postings/:id` | Yalnızca gönderilen alanları günceller |
+| `JobPostingStore.delete(id)` | `DELETE /api/job-postings/:id` | İlanı depodan kaldırır; silinen kaydı döner |
+
+---
+
+### 3.4 Application
+
+**Dosya:** [`src/models/application.model.js`](./src/models/application.model.js)
+
+İş ilanlarına yapılan başvuruları temsil eder. Kullanıcılar (`users`) ve iş ilanları (`job_postings`) arasındaki çoka-çok ilişkiyi kurar. Bir kullanıcının aynı ilana birden fazla başvuru yapması `UNIQUE(job_posting_id, applicant_id)` kısıtı ile engellenir.
+
+#### Alan Tanımları
+
+| Alan | Tür | Zorunlu | Varsayılan | Açıklama |
+|---|---|---|---|---|
+| `id` | `integer` | ✅ (otomatik) | Auto-increment | Benzersiz pozitif tam sayı kimlik |
+| `job_posting_id` | `integer` (FK) | ✅ | — | Başvurulan ilanın `job_postings.id`'si |
+| `applicant_id` | `integer` (FK) | ✅ | — | Başvuran kullanıcının `users.id`'si |
+| `cover_letter` | `text` | ❌ | `NULL` | Başvuru ön yazısı / motivasyon mektubu |
+| `status` | `enum` | ❌ | `Pending` | Başvuru durumu: `Pending` · `Reviewed` · `Accepted` · `Rejected` |
+| `applied_at` | `ISO 8601` | ✅ (otomatik) | `new Date()` | Başvuru oluşturulma tarihi |
+| `updated_at` | `ISO 8601` | ❌ | — | Son güncelleme zamanı; durum/yazı güncellendiğinde değişir |
+
+> **İlişkiler & Cascades:**
+> - `job_posting_id` → `job_postings(id) ON DELETE CASCADE`: İlan silindiğinde ilişkili tüm başvurular otomatik silinir.
+> - `applicant_id` → `users(id) ON DELETE CASCADE`: Kullanıcı silindiğinde başvuruları da otomatik silinir.
+> - Tekillik: Bir aday aynı ilana yalnızca bir kez başvurabilir (`UNIQUE (job_posting_id, applicant_id)`).
+
+#### JSON Örneği
+
+```json
+{
+  "id": 1,
+  "jobPostingId": 1,
+  "applicantId": 3,
+  "coverLetter": "İlanınızla yakından ilgileniyorum, CV'm ektedir.",
+  "status": "Pending",
+  "appliedAt": "2026-10-21T10:15:00.000Z"
+}
+```
+
+#### CRUD Operasyonları (Direct & Nested Routes)
+
+| Metod | HTTP | Açıklama |
+|---|---|---|
+| `ApplicationStore.create(data)` | `POST /api/applications` | Yeni başvuru oluşturur (`job_posting_id` ve `applicant_id` zorunlu) |
+| `ApplicationStore.create(data)` | `POST /api/job-postings/:jobPostingId/applications` | İlan altına doğrudan başvuru ekler (`job_posting_id` URL'den alınır) |
+| `ApplicationStore.create(data)` | `POST /api/users/:userId/applications` | Kullanıcı adına başvuru ekler (`applicant_id` URL'den alınır) |
+| `ApplicationStore.getAll()` | `GET /api/applications` | Tüm başvuruları listeler (opsiyonel `status` filtresi) |
+| `ApplicationStore.getAll({ jobPostingId })` | `GET /api/job-postings/:jobPostingId/applications` | Belirli bir ilana yapılmış tüm başvuruları listeler |
+| `ApplicationStore.getAll({ applicantId })` | `GET /api/users/:userId/applications` | Belirli bir kullanıcının yaptığı tüm başvuruları listeler |
+| `ApplicationStore.getById(id)` | `GET /api/applications/:id` | Başvuru detayını döner |
+| `ApplicationStore.update(id, data)` | `PUT /api/applications/:id` | Durum ve ön yazıyı günceller |
+| `ApplicationStore.patch(id, data)` | `PATCH /api/applications/:id` | `cover_letter` veya `status` alanını günceller |
+| `ApplicationStore.delete(id)` | `DELETE /api/applications/:id` | Başvuruyu geri çeker / siler |
+
+---
+
 ## 4. Validasyon Kuralları
 
 ### User Validasyonu
@@ -183,6 +294,31 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 |---|---|---|
 | `title` | Zorunlu, string, maks. 160 karakter | `Başlık (title) zorunludur.` / `Başlık en fazla 160 karakter olabilir.` |
 | `content` | Zorunlu, string, boş olamaz | `İçerik (content) zorunludur.` |
+
+### JobPosting Validasyonu
+
+| Alan | Kural | Hata Mesajı |
+|---|---|---|
+| `title` | Zorunlu, string, maks. 255 karakter | `İlan başlığı (title) zorunludur.` / `Başlık en fazla 255 karakter olabilir.` |
+| `description` | Zorunlu, string, boş olamaz | `İş tanımı (description) zorunludur.` |
+| `company` | Zorunlu, string, boş olamaz | `Şirket adı (company) zorunludur.` |
+| `type` | Opsiyonel; `Full-time` · `Part-time` · `Internship` · `Contract` dışında reddedilir | `Geçersiz ilan türü. İzin verilenler: Full-time, Part-time, Internship, Contract.` |
+| `status` | Opsiyonel; `Active` · `Closed` dışında reddedilir | `Geçersiz durum. İzin verilenler: Active, Closed.` |
+| `posted_by` | Opsiyonel; pozitif tam sayı, `users.id`'de var olmalı | `Geçersiz kullanıcı ID'si.` |
+| `deadline` | Opsiyonel; `YYYY-MM-DD` formatında geçerli tarih | `Geçersiz tarih formatı. Beklenen: YYYY-MM-DD.` |
+
+> **PUT vs PATCH:** `PUT`'ta `title`, `description` ve `company` zorunludur. `PATCH`'te yalnızca gönderilen alanlar doğrulanır; hiçbir alan gönderilmemişse istek reddedilir.
+
+### Application Validasyonu
+
+| Alan | Kural | Hata Mesajı |
+|---|---|---|
+| `job_posting_id` | Zorunlu (create), pozitif tamsayı, `job_postings.id`'de bulunmalı | `Geçerli bir job_posting_id zorunludur.` |
+| `applicant_id` | Zorunlu (create), pozitif tamsayı, `users.id`'de bulunmalı | `Geçerli bir applicant_id zorunludur.` |
+| `status` | Opsiyonel; `Pending` · `Reviewed` · `Accepted` · `Rejected` | `Geçersiz durum. İzin verilenler: Pending, Reviewed, Accepted, Rejected.` |
+| `cover_letter` | Opsiyonel; metin | — |
+
+> **Not:** Bir başvuru oluşturulduktan sonra `job_posting_id` ve `applicant_id` değiştirilemez. Yalnızca durum (`status`) ve ön yazı (`cover_letter`) güncellenebilir. Çift başvuru durumunda `409 Conflict` ("Bu kullanıcı bu ilana zaten başvurmuş.") döner.
 
 ---
 
@@ -205,6 +341,20 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 | 1 | Alumni Portal'a Hoş Geldiniz | Alumni Portal | Genel |
 | 2 | Mezunlar Buluşması | Alumni Portal | Etkinlik |
 
+### JobPostings
+
+| ID | title | company | type | posted_by | status |
+|---|---|---|---|---|---|
+| 1 | Backend Developer | TechCorp A.Ş. | Full-time | 2 | Active |
+| 2 | Yazılım Stajyeri | StartupX | Internship | 1 | Active |
+
+### Applications
+
+| ID | job_posting_id | applicant_id | status | cover_letter |
+|---|---|---|---|---|
+| 1 | 1 | 3 | Pending | Backend pozisyonuna başvurmak istiyorum. |
+| 2 | 2 | 1 | Reviewed | Staj programınız hakkında bilgi almak istiyorum. |
+
 > **Not:** Seed uygulama başlangıcında çalışır ve ayrıca `npm run seed` komutuyla çağrılabilir. Mevcut kayıtları silmez veya sıfırlamaz.
 
 ### Factory kullanımı
@@ -212,9 +362,11 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 ```js
 const { UserFactory } = require('./src/db/factories/user.factory');
 const { AnnouncementFactory } = require('./src/db/factories/announcement.factory');
+const { JobPostingFactory } = require('./src/db/factories/jobPosting.factory');
 
 const userInput = UserFactory.build({ role: 'Faculty' }); // Store'u değiştirmez
 const announcementResult = await AnnouncementFactory.create({ category: 'Etkinlik' });
+const jobPostingResult = await JobPostingFactory.create({ type: 'Internship', status: 'Active' });
 ```
 
 ---
@@ -265,13 +417,15 @@ Proje hazır bir migration altyapısına sahiptir:
 migrations/
   001_create_users.sql          ← DATA_DESIGN.md §3.1 users tablosu
   002_create_announcements.sql  ← DATA_DESIGN.md §3.2 announcements tablosu
+  003_create_job_postings.sql   ← DATA_DESIGN.md §3.3 job_postings tablosu
+  004_create_applications.sql   ← DATA_DESIGN.md §3.4 applications tablosu
 
 src/db/
   connection.js   ← mysql2/promise bağlantı havuzu
   migrate.js      ← Migration runner (sıralı SQL, _migrations tablosu)
   seed.js         ← DB'de eksik başlangıç kayıtlarını factory ile yükler
   store.interface.js ← Async CRUD store sözleşmesi
-  factories/      ← User ve Announcement örnek veri üreticileri
+  factories/      ← User, Announcement, JobPosting ve Application örnek veri üreticileri
 ```
 
 **Çalışma mantığı (`src/db/migrate.js`):**
@@ -308,6 +462,43 @@ CREATE TABLE IF NOT EXISTS announcements (
   category     VARCHAR(100)    NOT NULL DEFAULT 'Genel',
   created_at   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at   DATETIME        NULL ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+#### `job_postings` — [`migrations/003_create_job_postings.sql`](./migrations/003_create_job_postings.sql)
+
+```sql
+CREATE TABLE IF NOT EXISTS job_postings (
+  id           INT UNSIGNED    AUTO_INCREMENT PRIMARY KEY,
+  title        VARCHAR(255)    NOT NULL,
+  description  TEXT            NOT NULL,
+  company      VARCHAR(255)    NOT NULL,
+  location     VARCHAR(255)    NOT NULL DEFAULT 'Uzaktan',
+  type         ENUM('Full-time','Part-time','Internship','Contract') NOT NULL DEFAULT 'Full-time',
+  salary_range VARCHAR(100)    NULL,
+  posted_by    INT UNSIGNED    NULL,
+  status       ENUM('Active','Closed') NOT NULL DEFAULT 'Active',
+  deadline     DATE            NULL,
+  created_at   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at   DATETIME        NULL ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (posted_by) REFERENCES users(id) ON DELETE SET NULL
+);
+```
+
+#### `applications` — [`migrations/004_create_applications.sql`](./migrations/004_create_applications.sql)
+
+```sql
+CREATE TABLE IF NOT EXISTS applications (
+  id             INT UNSIGNED    AUTO_INCREMENT PRIMARY KEY,
+  job_posting_id INT UNSIGNED    NOT NULL,
+  applicant_id   INT UNSIGNED    NOT NULL,
+  cover_letter   TEXT            NULL,
+  status         ENUM('Pending','Reviewed','Accepted','Rejected') NOT NULL DEFAULT 'Pending',
+  applied_at     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at     DATETIME        NULL ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_application (job_posting_id, applicant_id),
+  FOREIGN KEY (job_posting_id) REFERENCES job_postings(id) ON DELETE CASCADE,
+  FOREIGN KEY (applicant_id)   REFERENCES users(id)        ON DELETE CASCADE
 );
 ```
 

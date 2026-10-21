@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alumni Portal | İş İlanları</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary: #0f172a;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #16a34a;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 1120px;
+      margin: 32px auto;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
+    header { margin-bottom: 24px; }
+    .nav-links { display: flex; gap: 16px; margin-bottom: 12px; font-size: 14px; }
+    .nav-links a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .nav-links a:hover { text-decoration: underline; }
+    h1, h2, h3 { color: var(--secondary); margin: 0 0 12px; }
+    .panel, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+    label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--secondary); }
+    input, select, textarea, button {
+      font: inherit;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    button {
+      background: var(--primary);
+      color: white;
+      border: 0;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--primary-hover); }
+    button.danger { background: var(--danger); }
+    button.danger:hover { background: #b91c1c; }
+    button.outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    button.outline:hover { background: #eff6ff; }
+    .message { color: var(--success); font-weight: 600; padding: 10px; background: #f0fdf4; border-radius: 8px; }
+    .error { color: var(--danger); font-weight: 600; padding: 10px; background: #fef2f2; border-radius: 8px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-active { background: #dcfce7; color: #15803d; }
+    .badge-closed { background: #f1f5f9; color: #64748b; }
+    .badge-type { background: #e0e7ff; color: #3730a3; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    details { margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 10px; }
+    summary { cursor: pointer; color: var(--primary); font-size: 13px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a href="/">← Ana Sayfa</a>
+      <a href="/announcements">Duyurular</a>
+      <a href="/users">Kullanıcılar</a>
+      <a href="/applications">Başvurular</a>
+      <a href="/api/swagger" target="_blank">Swagger API</a>
+    </div>
+    <h1>İş ve Staj İlanları</h1>
+    <p style="color: var(--muted);">Mezunlar ve fakülte üyeleri için kariyer fırsatları, staj ve araştırma pozisyonları.</p>
+  </header>
+
+  <% if (message) { %><p class="message"><%= message %></p><% } %>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+
+  <% if (selected) { %>
+    <section class="panel" style="border-left: 4px solid var(--primary);">
+      <h2>İlan Detayı</h2>
+      <div style="margin-bottom: 8px;">
+        <span class="badge <%= selected.status === 'Active' ? 'badge-active' : 'badge-closed' %>"><%= selected.status %></span>
+        <span class="badge badge-type"><%= selected.type %></span>
+      </div>
+      <h3><%= selected.title %> — <%= selected.company %></h3>
+      <p class="meta">📍 <%= selected.location %> | 💰 <%= selected.salaryRange || 'Belirtilmedi' %> | 📅 Son Başvuru: <%= selected.deadline || 'Belirtilmedi' %></p>
+      <p style="white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px;"><%= selected.description %></p>
+      <div class="actions">
+        <a href="/applications?jobPostingId=<%= selected.id %>"><button type="button" class="outline">Gelen Başvuruları Gör</button></a>
+        <a href="/job-postings"><button type="button">Tüm İlanlar</button></a>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="panel">
+    <h2>Yeni İş / Staj İlanı Yayınla</h2>
+    <form method="post" action="/job-postings" class="grid">
+      <label>İlan Başlığı *
+        <input name="title" maxlength="255" required placeholder="Örn: Backend Developer" value="<%= form.title || '' %>">
+      </label>
+      <label>Şirket / Kurum *
+        <input name="company" maxlength="255" required placeholder="Örn: TechCorp A.Ş." value="<%= form.company || '' %>">
+      </label>
+      <label>Konum
+        <input name="location" placeholder="Örn: İstanbul / Uzaktan" value="<%= form.location || 'Uzaktan' %>">
+      </label>
+      <label>İlan Türü
+        <select name="type">
+          <option value="Full-time" <%= form.type === 'Full-time' ? 'selected' : '' %>>Full-time</option>
+          <option value="Part-time" <%= form.type === 'Part-time' ? 'selected' : '' %>>Part-time</option>
+          <option value="Internship" <%= form.type === 'Internship' ? 'selected' : '' %>>Internship</option>
+          <option value="Contract" <%= form.type === 'Contract' ? 'selected' : '' %>>Contract</option>
+        </select>
+      </label>
+      <label>Maaş Aralığı
+        <input name="salary_range" placeholder="Örn: 30.000 - 45.000 TL" value="<%= form.salary_range || '' %>">
+      </label>
+      <label>Son Başvuru Tarihi
+        <input type="date" name="deadline" value="<%= form.deadline || '' %>">
+      </label>
+      <label style="grid-column: 1 / -1;">İş Tanımı ve Gereksinimler *
+        <textarea name="description" required placeholder="Gereksinimler, teknolojiler, iş kapsamı..."><%= form.description || '' %></textarea>
+      </label>
+      <button type="submit" style="grid-column: 1 / -1; padding: 12px;">İlanı Yayınla</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Yayındaki İlanlar (<%= jobPostings.length %>)</h2>
+    <div class="cards">
+      <% jobPostings.forEach(item => { %>
+        <article class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="badge <%= item.status === 'Active' ? 'badge-active' : 'badge-closed' %>"><%= item.status %></span>
+            <span class="badge badge-type"><%= item.type %></span>
+          </div>
+          <h3><a href="/job-postings/<%= item.id %>" style="color:var(--secondary); text-decoration:none;"><%= item.title %></a></h3>
+          <p class="meta">🏢 <%= item.company %> | 📍 <%= item.location %></p>
+          <% if (item.salaryRange) { %><p class="meta">💰 <%= item.salaryRange %></p><% } %>
+          <% if (item.deadline) { %><p class="meta">📅 Son Tarih: <%= item.deadline %></p><% } %>
+          <p style="white-space: pre-wrap; font-size:14px; margin: 10px 0;"><%= item.description.length > 140 ? item.description.slice(0, 140) + '...' : item.description %></p>
+
+          <div class="actions">
+            <a href="/job-postings/<%= item.id %>"><button type="button" class="outline">Detay</button></a>
+            <a href="/applications?jobPostingId=<%= item.id %>"><button type="button" class="outline">Başvurular</button></a>
+          </div>
+
+          <details>
+            <summary>İlanı Düzenle / Sil</summary>
+            <form data-method="PUT" action="/job-postings/<%= item.id %>" class="grid" style="margin-top: 10px;">
+              <label>Başlık<input name="title" required value="<%= item.title %>"></label>
+              <label>Şirket<input name="company" required value="<%= item.company %>"></label>
+              <label>Konum<input name="location" value="<%= item.location %>"></label>
+              <label>Tür
+                <select name="type">
+                  <option value="Full-time" <%= item.type === 'Full-time' ? 'selected' : '' %>>Full-time</option>
+                  <option value="Part-time" <%= item.type === 'Part-time' ? 'selected' : '' %>>Part-time</option>
+                  <option value="Internship" <%= item.type === 'Internship' ? 'selected' : '' %>>Internship</option>
+                  <option value="Contract" <%= item.type === 'Contract' ? 'selected' : '' %>>Contract</option>
+                </select>
+              </label>
+              <label>Durum
+                <select name="status">
+                  <option value="Active" <%= item.status === 'Active' ? 'selected' : '' %>>Active</option>
+                  <option value="Closed" <%= item.status === 'Closed' ? 'selected' : '' %>>Closed</option>
+                </select>
+              </label>
+              <label>Maaş Aralığı<input name="salary_range" value="<%= item.salaryRange || '' %>"></label>
+              <label>Son Tarih<input type="date" name="deadline" value="<%= item.deadline || '' %>"></label>
+              <label style="grid-column: 1/-1;">Açıklama<textarea name="description" required><%= item.description %></textarea></label>
+              <button type="submit">Güncelle</button>
+            </form>
+            <div style="margin-top: 10px;">
+              <form data-method="DELETE" action="/job-postings/<%= item.id %>">
+                <button type="submit" class="danger">İlanı Sil</button>
+              </form>
+            </div>
+          </details>
+        </article>
+      <% }) %>
+      <% if (jobPostings.length === 0) { %>
+        <p style="color: var(--muted);">Henüz ilan eklenmemiş. Yukarıdaki formu kullanarak ilk ilanı oluşturabilirsiniz.</p>
+      <% } %>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll('form[data-method]').forEach(form => form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (form.dataset.method === 'DELETE' && !confirm('Bu ilanı silmek istediğinize emin misiniz?')) return;
+      const response = await fetch(form.action, {
+        method: form.dataset.method,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form))
+      });
+      document.open();
+      document.write(await response.text());
+      document.close();
+    }));
+  </script>
+</body>
+</html>

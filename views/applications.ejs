@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alumni Portal | Başvurular</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary: #0f172a;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 1120px;
+      margin: 32px auto;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
+    header { margin-bottom: 24px; }
+    .nav-links { display: flex; gap: 16px; margin-bottom: 12px; font-size: 14px; }
+    .nav-links a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .nav-links a:hover { text-decoration: underline; }
+    h1, h2, h3 { color: var(--secondary); margin: 0 0 12px; }
+    .panel, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+    label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--secondary); }
+    input, select, textarea, button {
+      font: inherit;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    button {
+      background: var(--primary);
+      color: white;
+      border: 0;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--primary-hover); }
+    button.danger { background: var(--danger); }
+    button.danger:hover { background: #b91c1c; }
+    .message { color: var(--success); font-weight: 600; padding: 10px; background: #f0fdf4; border-radius: 8px; }
+    .error { color: var(--danger); font-weight: 600; padding: 10px; background: #fef2f2; border-radius: 8px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-Pending  { background: #fef3c7; color: #b45309; }
+    .badge-Reviewed { background: #e0e7ff; color: #3730a3; }
+    .badge-Accepted { background: #dcfce7; color: #15803d; }
+    .badge-Rejected { background: #fee2e2; color: #b91c1c; }
+    .table-responsive { overflow-x: auto; margin-top: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--secondary); font-weight: 600; }
+    .actions { display: flex; gap: 8px; align-items: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a href="/">← Ana Sayfa</a>
+      <a href="/job-postings">İş İlanları</a>
+      <a href="/announcements">Duyurular</a>
+      <a href="/users">Kullanıcılar</a>
+      <a href="/api/swagger" target="_blank">Swagger API</a>
+    </div>
+    <h1>İş Başvuruları Yönetimi</h1>
+    <p style="color: var(--muted);">İlanlara yapılan başvuruları görüntüleyin, durumlarını güncelleyin veya yeni başvuru oluşturun.</p>
+  </header>
+
+  <% if (message) { %><p class="message"><%= message %></p><% } %>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+
+  <% if (filterInfo) { %>
+    <div style="background: #eff6ff; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+      <span>🔍 <strong>Filtre uygulandı:</strong> <%= filterInfo %></span>
+      <a href="/applications" style="color: var(--primary); font-size: 13px; font-weight: 600;">Filtreyi Temizle</a>
+    </div>
+  <% } %>
+
+  <section class="panel">
+    <h2>Yeni Başvuru Yap</h2>
+    <form method="post" action="/applications" class="grid">
+      <label>İlan ID (job_posting_id) *
+        <input type="number" name="job_posting_id" min="1" required placeholder="Örn: 1" value="<%= form.job_posting_id || defaultJobId || '' %>">
+      </label>
+      <label>Aday / Kullanıcı ID (applicant_id) *
+        <input type="number" name="applicant_id" min="1" required placeholder="Örn: 3" value="<%= form.applicant_id || defaultApplicantId || '' %>">
+      </label>
+      <label>Başvuru Durumu
+        <select name="status">
+          <option value="Pending" <%= form.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+          <option value="Reviewed" <%= form.status === 'Reviewed' ? 'selected' : '' %>>Reviewed</option>
+          <option value="Accepted" <%= form.status === 'Accepted' ? 'selected' : '' %>>Accepted</option>
+          <option value="Rejected" <%= form.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+        </select>
+      </label>
+      <label style="grid-column: 1 / -1;">Ön Yazı / Motivasyon Mektubu
+        <textarea name="cover_letter" placeholder="Başvuru motivasyonunuzu ve iletişim bilgilerinizi yazın..."><%= form.cover_letter || '' %></textarea>
+      </label>
+      <button type="submit" style="grid-column: 1 / -1; padding: 12px;">Başvuruyu Gönder</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Başvuru Listesi (<%= applications.length %>)</h2>
+    <% if (applications.length > 0) { %>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>İlan ID</th>
+              <th>Aday ID</th>
+              <th>Durum</th>
+              <th>Ön Yazı</th>
+              <th>Tarih</th>
+              <th>İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% applications.forEach(app => { %>
+              <tr>
+                <td><strong>#<%= app.id %></strong></td>
+                <td><a href="/job-postings/<%= app.jobPostingId %>" style="color:var(--primary); font-weight:600;">İlan #<%= app.jobPostingId %></a></td>
+                <td><a href="/users/<%= app.applicantId %>" style="color:var(--secondary);">Aday #<%= app.applicantId %></a></td>
+                <td>
+                  <span class="badge badge-<%= app.status %>"><%= app.status %></span>
+                </td>
+                <td style="max-width: 280px; font-size: 13px;">
+                  <%= app.coverLetter || '<em>Ön yazı yok</em>' %>
+                </td>
+                <td style="font-size: 12px; color: var(--muted);">
+                  <%= new Date(app.appliedAt).toLocaleDateString('tr-TR') %>
+                </td>
+                <td>
+                  <form data-method="PATCH" action="/applications/<%= app.id %>" style="display:flex; gap:6px; margin-bottom:6px;">
+                    <select name="status" style="font-size:12px; padding:4px 6px;">
+                      <option value="Pending" <%= app.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                      <option value="Reviewed" <%= app.status === 'Reviewed' ? 'selected' : '' %>>Reviewed</option>
+                      <option value="Accepted" <%= app.status === 'Accepted' ? 'selected' : '' %>>Accepted</option>
+                      <option value="Rejected" <%= app.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+                    </select>
+                    <button type="submit" style="font-size:12px; padding:4px 8px;">Güncelle</button>
+                  </form>
+                  <form data-method="DELETE" action="/applications/<%= app.id %>">
+                    <button type="submit" class="danger" style="font-size:12px; padding:4px 8px;">Sil</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <p style="color: var(--muted); margin-top: 10px;">Henüz başvuru kaydı bulunmuyor.</p>
+    <% } %>
+  </section>
+
+  <script>
+    document.querySelectorAll('form[data-method]').forEach(form => form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (form.dataset.method === 'DELETE' && !confirm('Bu başvuruyu silmek istediğinize emin misiniz?')) return;
+      const response = await fetch(form.action, {
+        method: form.dataset.method,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form))
+      });
+      document.open();
+      document.write(await response.text());
+      document.close();
+    }));
+  </script>
+</body>
+</html>

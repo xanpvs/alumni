@@ -37,6 +37,14 @@ const swaggerOptions = {
         description: 'MySQL üzerinde kalıcı duyuru listeleme, oluşturma, güncelleme ve silme işlemleri'
       },
       {
+        name: 'JobPostings',
+        description: 'İş ilanı oluşturma, listeleme, güncelleme ve silme; /api/job-postings ve /api/users/:userId/job-postings'
+      },
+      {
+        name: 'Applications',
+        description: 'İş başvurusu işlemleri; doğrudan /api/applications, ilan altında /api/job-postings/:id/applications, kullanıcı altında /api/users/:id/applications'
+      },
+      {
         name: 'Health',
         description: 'Sistem ve API sağlık/durum kontrolü'
       },

@@ -68,6 +68,13 @@ The `/api/...` endpoints communicate using JSON. The `/users` interface renders 
 | `PUT/PATCH/DELETE` | `/announcements/:id` | Arayüzden duyuruyu güncelle veya sil | Full/partial form fields | `HTML view` |
 | `GET/POST` | `/api/announcements` | Duyuruları listele veya oluştur | JSON: `title`, `content`, optional `author`, `category` | JSON |
 | `GET/PUT/PATCH/DELETE` | `/api/announcements/:id` | Duyuruyu oku, güncelle veya sil | JSON fields | JSON |
+| `GET/POST` | `/api/job-postings` | İş ilanlarını listele veya oluştur | JSON: `title`, `description`, `company`, vb. | JSON |
+| `GET/PUT/PATCH/DELETE` | `/api/job-postings/:id` | İlanı oku, güncelle veya sil | JSON fields | JSON |
+| `GET/POST` | `/api/users/:userId/job-postings` | Kullanıcının ilanlarını listele / adına ilan aç (Nested) | JSON | JSON |
+| `GET/POST` | `/api/applications` | Tüm başvuruları listele veya oluştur | JSON: `job_posting_id`, `applicant_id`, `cover_letter` | JSON |
+| `GET/PUT/PATCH/DELETE` | `/api/applications/:id` | Başvuruyu oku, güncelle veya sil | JSON fields (`status`, `cover_letter`) | JSON |
+| `GET/POST` | `/api/job-postings/:jobPostingId/applications` | İlana gelen başvuruları listele / ilana başvur (Nested) | JSON | JSON |
+| `GET/POST` | `/api/users/:userId/applications` | Kullanıcının başvurularını listele / adına başvur (Nested) | JSON | JSON |
 
 Bu tablo temel örnekleri gösterir. Eski/genel rotalar dahil tam ve güncel metot, parametre ve yanıt listesi için Swagger UI'yi kullanın; yeni API rotalarını yukarıdaki kurala göre belgeleyin.
 

@@ -6,6 +6,8 @@ const path = require('path');
 const apiRoutes = require('./routes/api');
 const userRoutes = require('./routes/users.routes');
 const announcementRoutes = require('./routes/announcements.routes');
+const jobPostingWebRoutes = require('./routes/jobPostings.routes');
+const applicationWebRoutes = require('./routes/applications.routes');
 const { seedDatabase } = require('./db/seed');
 
 const app = express();
@@ -20,6 +22,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Mount web interface CRUD routes and modular API routes.
 app.use('/users', userRoutes);
 app.use('/announcements', announcementRoutes);
+app.use('/job-postings', jobPostingWebRoutes);
+app.use('/applications', applicationWebRoutes);
 app.use('/api', apiRoutes);
 
 /**
@@ -217,8 +221,12 @@ app.use((err, req, res, next) => {
 });
 
 async function start() {
-  const seedCounts = await seedDatabase();
-  console.log(`Database ready: ${seedCounts.users} users, ${seedCounts.announcements} announcements.`);
+  try {
+    const seedCounts = await seedDatabase();
+    console.log(`Database ready: ${seedCounts.users} users, ${seedCounts.announcements} announcements, ${seedCounts.jobPostings} job postings.`);
+  } catch (dbErr) {
+    console.warn(`[DB Uyarısı] MySQL bağlantısı kurulamadı (${dbErr.code || dbErr.message}). Sunucu yine de başlatılıyor.`);
+  }
 
   const PORT = parseInt(process.env.PORT, 10) || 80;
   const ALT_PORT = 3000;
