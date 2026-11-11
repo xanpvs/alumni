@@ -2,13 +2,13 @@
   "info": {
     "_postman_id": "b8a9c2e1-4567-4e89-91a1-alumniportal01",
     "name": "Alumni Portal API",
-    "description": "Alumni Portal Backend REST API Collection for Postman - Full CRUD",
+    "description": "Alumni Portal Backend REST API Collection for Postman - Full CRUD & Guardian/Validation Tests",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost",
+      "value": "http://localhost:3000",
       "type": "string"
     }
   ],
@@ -182,6 +182,197 @@
           "path": ["api", "users", "2"]
         },
         "description": "Delete a user by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Job Posting (POST - Valid)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Frontend Developer\",\n  \"company\": \"Acme Corp\",\n  \"city\": \"İstanbul\",\n  \"description\": \"React tecrübesi olan ekip arkadaşı aranıyor.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/job-postings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "job-postings"]
+        },
+        "description": "Create a valid job posting adhering to updated DDD rules"
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid Request - Missing Email (POST /api/users)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Eksik Eposta\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        },
+        "description": "Geçersiz İstek: E-posta alanı eksik olduğu için 400 Bad Request döner."
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid Request - User Not Found (GET /api/users/99999)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "99999"]
+        },
+        "description": "Geçersiz İstek: Var olmayan kullanıcı ID'si için 404 Not Found döner."
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid Request - JobPosting Title Exceeds 120 Chars",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Bu başlık bilerek yüz yirmi karakterden çok daha uzun yazılmıştır ve ddd.md üzerindeki max 120 karakter kuralını aşmaktadır kesinlikle hata almalıdır.\",\n  \"company\": \"TechCorp A.Ş.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/job-postings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "job-postings"]
+        },
+        "description": "Geçersiz İstek: Tahtadaki kural gereği başlık 120 karakteri aştığında 400 döner."
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid Request - JobPosting Missing Company",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Software Engineer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/job-postings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "job-postings"]
+        },
+        "description": "Geçersiz İstek: Tahtadaki kural gereği 'company' zorunludur, eksik olunca 400 döner."
+      },
+      "response": []
+    },
+    {
+      "name": "Guardian Test - 404 Route With Reason",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/tanimsiz-bir-rota",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "tanimsiz-bir-rota"]
+        },
+        "description": "404 Guardian Testi: Sistemde olmayan bir rotaya istek yapıldığında reason alanı içeren 404 döner."
+      },
+      "response": []
+    },
+    {
+      "name": "Guardian Test - 5xx Error With Reason",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/health?simulateError=true",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"],
+          "query": [
+            {
+              "key": "simulateError",
+              "value": "true"
+            }
+          ]
+        },
+        "description": "5xx Guardian Testi: Sunucu tarafı bir istisna fırlattığında reason alanı içeren 500 döner."
       },
       "response": []
     }

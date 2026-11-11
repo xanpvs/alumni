@@ -9,10 +9,14 @@ const announcementRoutes = require('./routes/announcements.routes');
 const jobPostingWebRoutes = require('./routes/jobPostings.routes');
 const applicationWebRoutes = require('./routes/applications.routes');
 const { seedDatabase } = require('./db/seed');
+const { logger, guardian404, guardian5xx } = require('./middleware');
 
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
+
+// Logger Middleware - Her istek için: time method route res.type duration
+app.use(logger);
 
 app.use(cors());
 app.use(express.json());
@@ -212,13 +216,19 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use((err, req, res, next) => {
-  console.error('Request failed:', err.message);
-  if (req.path.startsWith('/api/')) {
-    return res.status(500).json({ success: false, error: 'İstek işlenirken sunucu hatası oluştu.' });
-  }
-  return res.status(500).send('İstek işlenirken sunucu hatası oluştu.');
+// Generic 404 Sayfası
+app.get('/404', (req, res) => {
+  res.status(404).render('404', {
+    reason: req.query.reason || 'Aradığınız sayfa bulunamadı.',
+    requestedUrl: req.query.url || '',
+  });
 });
+
+// 404 Guardian Middleware - Tanımlanmamış rotaları yakalar ve yönlendirir (redirect)
+app.use(guardian404);
+
+// 5xx Guardian Middleware - Sunucu hatalarını logs/error.logs'a yazar ve güvenli yanıt döner
+app.use(guardian5xx);
 
 async function start() {
   try {
@@ -249,4 +259,3 @@ start().catch(error => {
 });
 
 module.exports = app;
-

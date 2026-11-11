@@ -11,6 +11,9 @@
  * Sunucunun anlık çalışma durumunu ve zaman damgasını JSON olarak döner.
  */
 const getStatus = (req, res) => {
+  if (req.query && req.query.simulateError === 'true') {
+    throw new Error('Simüle edilmiş kritik sunucu hatası (5xx Guardian testi).');
+  }
   res.status(200).json({
     status: 'ok',
     message: 'Alumni Portal API is running successfully',

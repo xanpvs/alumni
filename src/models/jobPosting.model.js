@@ -40,12 +40,14 @@ class JobPosting {
    * @param {string}  [data.createdAt]     - ISO 8601; belirtilmezse şimdiki zaman
    * @param {string}  [data.updatedAt]     - ISO 8601; opsiyonel
    */
-  constructor({ id, title, description, company, location, type, salaryRange, postedBy, status, deadline, createdAt, updatedAt }) {
+  constructor({ id, title, description, company, location, city, type, salaryRange, postedBy, status, deadline, createdAt, updatedAt }) {
     this.id          = id;
     this.title       = String(title || '').trim();
-    this.description = String(description || '').trim();
+    this.description = description !== undefined && description !== null ? String(description).trim() : '';
     this.company     = String(company || '').trim();
-    this.location    = String(location || '').trim() || 'Uzaktan';
+    const loc        = city || location || '';
+    this.location    = String(loc).trim() || 'Uzaktan';
+    this.city        = this.location;
     this.type        = type || 'Full-time';
     this.salaryRange = salaryRange || null;
     this.postedBy    = postedBy ?? null;
@@ -62,6 +64,7 @@ class JobPosting {
       description: this.description,
       company:     this.company,
       location:    this.location,
+      city:        this.city,
       type:        this.type,
       salaryRange: this.salaryRange,
       postedBy:    this.postedBy,
@@ -86,12 +89,12 @@ class JobPosting {
 const validateRequired = ({ title, description, company, type, status, postedBy, deadline }) => {
   if (!title || typeof title !== 'string' || !title.trim())
     return 'İlan başlığı (title) zorunludur.';
-  if (title.trim().length > 255)
-    return 'Başlık en fazla 255 karakter olabilir.';
-  if (!description || typeof description !== 'string' || !description.trim())
-    return 'İş tanımı (description) zorunludur.';
+  if (title.trim().length > 120)
+    return 'Başlık en fazla 120 karakter olabilir.';
   if (!company || typeof company !== 'string' || !company.trim())
     return 'Şirket adı (company) zorunludur.';
+  if (description !== undefined && description !== null && typeof description !== 'string')
+    return 'İş tanımı (description) metin olmalıdır.';
   if (type !== undefined && !VALID_TYPES.includes(type))
     return `Geçersiz ilan türü. İzin verilenler: ${VALID_TYPES.join(', ')}.`;
   if (status !== undefined && !VALID_STATUSES.includes(status))
@@ -112,10 +115,10 @@ const validatePartial = (data) => {
   const { title, description, company, type, status, postedBy, deadline } = data;
   if (title !== undefined && (typeof title !== 'string' || !title.trim()))
     return 'İlan başlığı (title) boş bırakılamaz.';
-  if (title !== undefined && title.trim().length > 255)
-    return 'Başlık en fazla 255 karakter olabilir.';
-  if (description !== undefined && (typeof description !== 'string' || !description.trim()))
-    return 'İş tanımı (description) boş bırakılamaz.';
+  if (title !== undefined && title.trim().length > 120)
+    return 'Başlık en fazla 120 karakter olabilir.';
+  if (description !== undefined && description !== null && typeof description !== 'string')
+    return 'İş tanımı (description) metin olmalıdır.';
   if (company !== undefined && (typeof company !== 'string' || !company.trim()))
     return 'Şirket adı (company) boş bırakılamaz.';
   if (type !== undefined && !VALID_TYPES.includes(type))
@@ -133,7 +136,7 @@ const validatePartial = (data) => {
 //  DB Yardımcıları
 // ─────────────────────────────────────────────
 
-const PATCHABLE_FIELDS = ['title', 'description', 'company', 'location', 'type', 'salary_range', 'posted_by', 'status', 'deadline'];
+const PATCHABLE_FIELDS = ['title', 'description', 'company', 'location', 'city', 'type', 'salary_range', 'posted_by', 'status', 'deadline'];
 
 const mapJobPosting = row => new JobPosting({
   id:          row.id,
@@ -207,16 +210,18 @@ const JobPostingStore = {
     const error = validateRequired(data);
     if (error) return { success: false, error };
 
-    const { title, description, company, location, type, salary_range, posted_by, status, deadline } = data;
+    const { title, description, company, location, city, type, salary_range, posted_by, status, deadline } = data;
+    const finalLocation = (city || location || 'Uzaktan').trim();
+    const finalDescription = (description ? String(description).trim() : '');
     try {
       const [result] = await pool.execute(
         `INSERT INTO job_postings (title, description, company, location, type, salary_range, posted_by, status, deadline)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           title.trim(),
-          description.trim(),
+          finalDescription,
           company.trim(),
-          location || 'Uzaktan',
+          finalLocation,
           type || 'Full-time',
           salary_range || null,
           posted_by ?? null,
@@ -231,9 +236,10 @@ const JobPostingStore = {
         const item = new JobPosting({
           id: nextJobId(),
           title: title.trim(),
-          description: description.trim(),
+          description: finalDescription,
           company: company.trim(),
-          location: location || 'Uzaktan',
+          location: finalLocation,
+          city: finalLocation,
           type: type || 'Full-time',
           salaryRange: salary_range || null,
           postedBy: posted_by ?? null,
@@ -297,7 +303,9 @@ const JobPostingStore = {
     const error = validateRequired(data);
     if (error) return { success: false, error };
 
-    const { title, description, company, location, type, salary_range, posted_by, status, deadline } = data;
+    const { title, description, company, location, city, type, salary_range, posted_by, status, deadline } = data;
+    const finalLocation = (city || location || 'Uzaktan').trim();
+    const finalDescription = (description ? String(description).trim() : '');
     try {
       const current = await this.getById(id);
       if (!current.success) return current;
@@ -309,9 +317,9 @@ const JobPostingStore = {
          WHERE id = ?`,
         [
           title.trim(),
-          description.trim(),
+          finalDescription,
           company.trim(),
-          location || 'Uzaktan',
+          finalLocation,
           type || 'Full-time',
           salary_range ?? null,
           posted_by ?? null,
@@ -328,9 +336,10 @@ const JobPostingStore = {
         const updated = new JobPosting({
           id,
           title: title.trim(),
-          description: description.trim(),
+          description: finalDescription,
           company: company.trim(),
-          location: location || 'Uzaktan',
+          location: finalLocation,
+          city: finalLocation,
           type: type || 'Full-time',
           salaryRange: salary_range ?? memoryJobPostings[index].salaryRange,
           postedBy: posted_by ?? memoryJobPostings[index].postedBy,

@@ -63,15 +63,21 @@ const asyncHandler = require('../async-handler');
  *           format: date-time
  *     JobPostingInput:
  *       type: object
- *       required: [title, description, company]
+ *       required: [title, company]
  *       properties:
  *         title:
  *           type: string
- *           maxLength: 255
- *         description:
- *           type: string
+ *           maxLength: 120
+ *           example: Senior Node.js Developer
  *         company:
  *           type: string
+ *           example: TechCorp A.Ş.
+ *         description:
+ *           type: string
+ *           example: Node.js ve Express ile REST API geliştirme deneyimi.
+ *         city:
+ *           type: string
+ *           example: İstanbul
  *         location:
  *           type: string
  *           default: Uzaktan
@@ -98,10 +104,12 @@ const asyncHandler = require('../async-handler');
  *       properties:
  *         title:
  *           type: string
- *           maxLength: 255
+ *           maxLength: 120
+ *         company:
+ *           type: string
  *         description:
  *           type: string
- *         company:
+ *         city:
  *           type: string
  *         location:
  *           type: string

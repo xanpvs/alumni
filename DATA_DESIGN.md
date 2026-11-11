@@ -177,10 +177,10 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 | Alan | Tür | Zorunlu | Varsayılan | Açıklama |
 |---|---|---|---|---|
 | `id` | `integer` | ✅ (otomatik) | Auto-increment | Benzersiz pozitif tam sayı kimlik |
-| `title` | `string` | ✅ | — | İlan başlığı; maks. 255 karakter |
-| `description` | `string` | ✅ | — | İş tanımı ve gereksinimler |
+| `title` | `string` | ✅ | — | İlan başlığı; maks. 120 karakter |
 | `company` | `string` | ✅ | — | Şirket veya kurum adı |
-| `location` | `string` | ❌ | `Uzaktan` | Çalışma konumu (ör. `İstanbul`, `Uzaktan`, `Hibrit`) |
+| `description` | `string` | ❌ | `NULL` | İş tanımı ve gereksinimler (opsiyonel) |
+| `city` / `location` | `string` | ❌ | `Uzaktan` | Şehir / çalışma konumu (ör. `İstanbul`, `Uzaktan`, `Hibrit`) |
 | `type` | `enum` | ❌ | `Full-time` | İlan türü: `Full-time` · `Part-time` · `Internship` · `Contract` |
 | `salary_range` | `string` | ❌ | `NULL` | Maaş aralığı (ör. `15.000 - 20.000 TL`) |
 | `posted_by` | `integer` (FK) | ❌ | `NULL` | İlanı oluşturan kullanıcının `users.id`'si |
@@ -213,7 +213,7 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 
 | Metod | HTTP | Açıklama |
 |---|---|---|
-| `JobPostingStore.create(data)` | `POST /api/job-postings` | Yeni ilan oluşturur; `title`, `description`, `company` zorunludur |
+| `JobPostingStore.create(data)` | `POST /api/job-postings` | Yeni ilan oluşturur; `title` (maks. 120 kar.) ve `company` zorunludur; `city` ve `description` opsiyoneldir |
 | `JobPostingStore.getAll()` | `GET /api/job-postings` | Tüm ilanları döner; opsiyonel `status` ve `type` filtresi desteklenir |
 | `JobPostingStore.getById(id)` | `GET /api/job-postings/:id` | ID ile tek ilan; bulunamazsa `success: false` |
 | `JobPostingStore.update(id, data)` | `PUT /api/job-postings/:id` | Tüm alanları yeniden yazar; `created_at` korunur, `updated_at` güncellenir |
@@ -299,15 +299,16 @@ Platform duyurularını temsil eder. Etkinlikler, haberler ve genel bilgilendirm
 
 | Alan | Kural | Hata Mesajı |
 |---|---|---|
-| `title` | Zorunlu, string, maks. 255 karakter | `İlan başlığı (title) zorunludur.` / `Başlık en fazla 255 karakter olabilir.` |
-| `description` | Zorunlu, string, boş olamaz | `İş tanımı (description) zorunludur.` |
+| `title` | Zorunlu, string, maks. 120 karakter | `İlan başlığı (title) zorunludur.` / `Başlık en fazla 120 karakter olabilir.` |
 | `company` | Zorunlu, string, boş olamaz | `Şirket adı (company) zorunludur.` |
+| `description` | Opsiyonel, string | `İş tanımı metin olmalıdır.` |
+| `city` / `location` | Opsiyonel, string | — |
 | `type` | Opsiyonel; `Full-time` · `Part-time` · `Internship` · `Contract` dışında reddedilir | `Geçersiz ilan türü. İzin verilenler: Full-time, Part-time, Internship, Contract.` |
 | `status` | Opsiyonel; `Active` · `Closed` dışında reddedilir | `Geçersiz durum. İzin verilenler: Active, Closed.` |
 | `posted_by` | Opsiyonel; pozitif tam sayı, `users.id`'de var olmalı | `Geçersiz kullanıcı ID'si.` |
 | `deadline` | Opsiyonel; `YYYY-MM-DD` formatında geçerli tarih | `Geçersiz tarih formatı. Beklenen: YYYY-MM-DD.` |
 
-> **PUT vs PATCH:** `PUT`'ta `title`, `description` ve `company` zorunludur. `PATCH`'te yalnızca gönderilen alanlar doğrulanır; hiçbir alan gönderilmemişse istek reddedilir.
+> **PUT vs PATCH:** `PUT`'ta `title` ve `company` zorunludur (`description` ve `city/location` opsiyoneldir). `PATCH`'te yalnızca gönderilen alanlar doğrulanır; hiçbir alan gönderilmemişse istek reddedilir.
 
 ### Application Validasyonu
 

@@ -14,7 +14,9 @@ Thumbs.db
 
 # Log dosyaları
 *.log
-logs/
+*.logs
+logs/*
+!logs/.gitkeep
 
 # Postman kişisel koleksiyon ve ortam dosyaları
 .postman/
