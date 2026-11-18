@@ -3,6 +3,8 @@
 A robust backend service and RESTful API for the **Alumni Portal** platform. This system facilitates seamless communication and networking between alumni, fellow graduates, and faculty members (professors), fostering a collaborative academic and professional ecosystem.
 
 > **Note:** This repository is dedicated exclusively to the **backend** architecture and API services of the project.
+> 
+> 🎨 **Marka & Tasarım Rehberi:** Renk paleti, tipografi, logo ve tasarım standartları için bkz: **[brand.md](./brand.md)**
 
 ---
 
@@ -170,11 +172,19 @@ alumni/
 │       └── Alumni_Portal_API.postman_collection.json
 ├── .env.example
 ├── .gitignore
+├── brand.md                        # Marka kimliği, renk paleti ve tasarım standartları
 ├── DATA_DESIGN.md                  # Veri mimarisi ve entity belgeleri
 ├── WEEK2_NOTES.md                  # 2. Hafta çalışma notları
 ├── WEEK3_NOTES.md                  # 3. Hafta çalışma notları (Middleware, Guardian, Rules)
 └── README.md
 ```
+
+---
+
+## 🎨 Marka Kimliği & Tasarım Sistemi (Brand Identity)
+
+Platformun görsel kimliği, renk paleti, tipografisi, amblem/logo standartları ve arayüz kuralları için bkz:
+👉 **[brand.md — Marka ve Tasarım Rehberi](./brand.md)**
 
 ---
 
