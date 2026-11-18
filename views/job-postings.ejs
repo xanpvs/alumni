@@ -6,10 +6,10 @@
   <title>Alumni Portal | İş İlanları</title>
   <style>
     :root {
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --secondary: #0f172a;
-      --bg: #f8fafc;
+      --primary: #17191c;
+      --primary-hover: #303237;
+      --secondary: #17191c;
+      --bg: #fafafb;
       --card: #ffffff;
       --border: #e2e8f0;
       --text: #1e293b;
@@ -70,7 +70,7 @@
       color: var(--primary);
       border: 1px solid var(--primary);
     }
-    button.outline:hover { background: #eff6ff; }
+    button.outline:hover { background: #f2f2f3; }
     .message { color: var(--success); font-weight: 600; padding: 10px; background: #f0fdf4; border-radius: 8px; }
     .error { color: var(--danger); font-weight: 600; padding: 10px; background: #fef2f2; border-radius: 8px; }
     .badge {
@@ -82,7 +82,7 @@
       text-transform: uppercase;
     }
     .badge-active { background: #dcfce7; color: #15803d; }
-    .badge-closed { background: #f1f5f9; color: #64748b; }
+    .badge-closed { background: #f2f2f3; color: #64748b; }
     .badge-type { background: #e0e7ff; color: #3730a3; }
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
     .meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
@@ -90,6 +90,10 @@
     details { margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 10px; }
     summary { cursor: pointer; color: var(--primary); font-size: 13px; font-weight: 500; }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/steep.css">
 </head>
 <body>
   <header>
@@ -116,7 +120,7 @@
       </div>
       <h3><%= selected.title %> — <%= selected.company %></h3>
       <p class="meta">📍 <%= selected.location %> | 💰 <%= selected.salaryRange || 'Belirtilmedi' %> | 📅 Son Başvuru: <%= selected.deadline || 'Belirtilmedi' %></p>
-      <p style="white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px;"><%= selected.description %></p>
+      <p style="white-space: pre-wrap; background: #fafafb; padding: 12px; border-radius: 8px;"><%= selected.description %></p>
       <div class="actions">
         <a href="/applications?jobPostingId=<%= selected.id %>"><button type="button" class="outline">Gelen Başvuruları Gör</button></a>
         <a href="/job-postings"><button type="button">Tüm İlanlar</button></a>

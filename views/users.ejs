@@ -23,8 +23,21 @@
     a { color: #2348a0; }
     @media (max-width: 720px) { .table-wrap { overflow-x: auto; } }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/steep.css">
 </head>
 <body>
+  <header class="site-header">
+    <nav class="nav-wrap" aria-label="Sayfa gezinme">
+      <a class="brand" href="/" aria-label="Alumni Portal ana sayfa">
+        <span class="brand-icon" aria-hidden="true">🎓</span>
+        <span>Alumni Portal<small class="brand-caption">MEZUN &amp; FAKÜLTE AĞI</small></span>
+      </a>
+      <a class="pill-ghost" href="/">← Ana sayfaya dön</a>
+    </nav>
+  </header>
   <h1>Kullanıcılar</h1>
   <p>Toplam kayıt: <strong><%= total %></strong></p>
   <% if (message) { %><p class="message"><%= message %></p><% } %>
