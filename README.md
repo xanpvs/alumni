@@ -4,7 +4,9 @@ A robust backend service and RESTful API for the **Alumni Portal** platform. Thi
 
 > **Note:** This repository is dedicated exclusively to the **backend** architecture and API services of the project.
 > 
-> 🎨 **Marka & Tasarım Rehberi:** Renk paleti, tipografi, logo ve tasarım standartları için bkz: **[brand.md](./brand.md)**
+> 🎨 **Marka & Tasarım Rehberleri:**
+> - Görsel marka kimliği ve logo standartları: **[brand.md](./brand.md)**
+> - UI/UX tasarım sistemi & token şartnamesi: **[DESIGN.md](./DESIGN.md)** *(Referans: [Styles Refero](https://styles.refero.design/style/e9f5e976-53f7-42f5-a882-4e63b3c2f734))*
 
 ---
 
@@ -172,7 +174,8 @@ alumni/
 │       └── Alumni_Portal_API.postman_collection.json
 ├── .env.example
 ├── .gitignore
-├── brand.md                        # Marka kimliği, renk paleti ve tasarım standartları
+├── brand.md                        # Marka kimliği ve logo standartları
+├── DESIGN.md                       # UI/UX tasarım sistemi (Refero e9f5e976-53f7-42f5-a882-4e63b3c2f734)
 ├── DATA_DESIGN.md                  # Veri mimarisi ve entity belgeleri
 ├── WEEK2_NOTES.md                  # 2. Hafta çalışma notları
 ├── WEEK3_NOTES.md                  # 3. Hafta çalışma notları (Middleware, Guardian, Rules)
@@ -181,10 +184,12 @@ alumni/
 
 ---
 
-## 🎨 Marka Kimliği & Tasarım Sistemi (Brand Identity)
+## 🎨 Marka & UI Tasarım Sistemi (Brand & Design System)
 
-Platformun görsel kimliği, renk paleti, tipografisi, amblem/logo standartları ve arayüz kuralları için bkz:
-👉 **[brand.md — Marka ve Tasarım Rehberi](./brand.md)**
+Platformun görsel kimliği, arayüz bileşenleri ve stil standartları iki temel kılavuzda tanımlanmıştır:
+* 🎓 **[brand.md — Marka Kimliği & Logo Rehberi](./brand.md):** Platformun vizyonu, logo ve amblem kuralları, akademik terminoloji ve rol tanımları.
+* 🌿 **[DESIGN.md — UI/UX Tasarım Şartnamesi](./DESIGN.md):** Krem kağıt (`#fffefc`) ve botanik yeşil katmanlı editoryal tasarım sistemi, CSS custom properties, Tailwind v4 `@theme` yapılandırması ve bileşen kuralları.
+  * 🔗 **Canlı Tasarım Referansı:** [Styles Refero — Botanical Greenhouse on Cream Paper (`e9f5e976-53f7-42f5-a882-4e63b3c2f734`)](https://styles.refero.design/style/e9f5e976-53f7-42f5-a882-4e63b3c2f734)
 
 ---
 
