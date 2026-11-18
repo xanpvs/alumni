@@ -4,9 +4,20 @@ A robust backend service and RESTful API for the **Alumni Portal** platform. Thi
 
 > **Note:** This repository is dedicated exclusively to the **backend** architecture and API services of the project.
 > 
-> 🎨 **Marka & Tasarım Rehberleri:**
-> - Görsel marka kimliği ve logo standartları: **[brand.md](./brand.md)**
-> - UI/UX tasarım sistemi & token şartnamesi: **[DESIGN.md](./DESIGN.md)** *(Referans: [Styles Refero](https://styles.refero.design/style/e9f5e976-53f7-42f5-a882-4e63b3c2f734))*
+> 🎨 **Marka & Tasarım Rehberleri (Tasarım Çapaları):**
+> - Görsel marka kimliği ve logo standartları: **[brand.md](./brand.md)** · *(Sayfa içi çapa: [#brand-identity](#brand-identity))*
+> - UI/UX tasarım sistemi & token şartnamesi: **[DESIGN.md](./DESIGN.md)** *(Referans: [Styles Refero](https://styles.refero.design/style/e9f5e976-53f7-42f5-a882-4e63b3c2f734))* · *(Sayfa içi çapa: [#design-system](#design-system))*
+
+### 📑 İçindekiler & Hızlı Çapalar (Quick Anchors)
+- [🎯 Proje Amacı](#-project-purpose)
+- [🛠 Teknoloji Yığını](#-tech-stack)
+- [🛡️ Guardian & Hata Yönetimi](#️-middleware--hata-yönetim-mimarisi-guardian--logging)
+- [📖 Swagger API Dokümantasyonu](#-canlı--dinamik-api-dokümantasyonu-swagger-ui)
+- [📡 API Uç Noktaları](#-api-endpoints)
+- [📁 Proje Dizin Yapısı](#-project-structure)
+- [🎨 Marka Kimliği (brand.md)](#brand-identity)
+- [🌿 UI Tasarım Sistemi (design.md / DESIGN.md)](#design-system)
+- [🧩 Veri Modelleri & Kurallar (DATA_DESIGN.md)](#-data-models--kurallar)
 
 ---
 
@@ -184,11 +195,18 @@ alumni/
 
 ---
 
+<a id="brand-and-design-system"></a>
+<a id="brand-identity"></a>
+<a id="design-system"></a>
+<a id="brand-md"></a>
+<a id="design-md"></a>
+<a id="brand"></a>
+<a id="design"></a>
 ## 🎨 Marka & UI Tasarım Sistemi (Brand & Design System)
 
 Platformun görsel kimliği, arayüz bileşenleri ve stil standartları iki temel kılavuzda tanımlanmıştır:
-* 🎓 **[brand.md — Marka Kimliği & Logo Rehberi](./brand.md):** Platformun vizyonu, logo ve amblem kuralları, akademik terminoloji ve rol tanımları.
-* 🌿 **[DESIGN.md — UI/UX Tasarım Şartnamesi](./DESIGN.md):** Krem kağıt (`#fffefc`) ve botanik yeşil katmanlı editoryal tasarım sistemi, CSS custom properties, Tailwind v4 `@theme` yapılandırması ve bileşen kuralları.
+* 🎓 **[brand.md — Marka Kimliği & Logo Rehberi](./brand.md)** *(Çapa referansı: `#brand-identity`, `#brand-md`)*: Platformun vizyonu, logo ve amblem kuralları, akademik terminoloji ve rol tanımları.
+* 🌿 **[DESIGN.md (design.md) — UI/UX Tasarım Şartnamesi](./DESIGN.md)** *(Çapa referansı: `#design-system`, `#design-md`)*: Krem kağıt (`#fffefc`) ve botanik yeşil katmanlı editoryal tasarım sistemi, CSS custom properties, Tailwind v4 `@theme` yapılandırması ve bileşen kuralları.
   * 🔗 **Canlı Tasarım Referansı:** [Styles Refero — Botanical Greenhouse on Cream Paper (`e9f5e976-53f7-42f5-a882-4e63b3c2f734`)](https://styles.refero.design/style/e9f5e976-53f7-42f5-a882-4e63b3c2f734)
 
 ---
